@@ -1,5 +1,7 @@
 
 module.exports = {
     PORT: '3000',
-    DB_NAME: 'mongale'
+    DB_IP: 'localhost',
+    DB_PORT: '27017',
+    DB_NAME: 'signal-bridge'
 };
