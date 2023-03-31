@@ -59,3 +59,6 @@ profile*
 
 # trash
 package-lock.json
+
+# environment variables
+env.js
