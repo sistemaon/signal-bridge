@@ -1,5 +1,8 @@
-# Getting Started with [Fastify-CLI](https://www.npmjs.com/package/fastify-cli)
-This project was bootstrapped with Fastify-CLI.
+# SIGNAL BRIDGE
+
+## Description
+
+Project to bridge the signal between tradingview and the operation bot. Receives the signal from tradingview and sends it to the bot, replicating the same signal to the other accounts.
 
 ## Available Scripts
 
@@ -10,14 +13,3 @@ In the project directory, you can run:
 To start the app in dev mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-### `npm start`
-
-For production mode
-
-### `npm run test`
-
-Run the test cases.
-
-## Learn More
-
-To learn Fastify, check out the [Fastify documentation](https://www.fastify.io/docs/latest/).

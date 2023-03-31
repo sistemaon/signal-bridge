@@ -1,27 +1,21 @@
 {
   "name": "signal-bridge",
-  "version": "1.0.0",
-  "description": "This project was bootstrapped with Fastify-CLI.",
-  "main": "app.js",
-  "directories": {
-    "test": "test"
-  },
+  "version": "0.0.1",
+  "private": true,
   "scripts": {
-    "test": "tap \"test/**/*.test.js\"",
-    "start": "fastify start -l info app.js",
-    "dev": "fastify start -w -l info -P app.js"
+    "dev": "nodemon ./bin/www"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "fastify": "^4.0.0",
-    "fastify-plugin": "^4.0.0",
-    "@fastify/autoload": "^5.0.0",
-    "@fastify/sensible": "^5.0.0",
-    "fastify-cli": "^5.7.1"
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "helmet": "^6.0.1",
+    "http-errors": "~1.6.3",
+    "mongoose": "^7.0.3",
+    "morgan": "~1.9.1"
   },
   "devDependencies": {
-    "tap": "^16.1.0"
+    "nodemon": "^2.0.22"
   }
 }
