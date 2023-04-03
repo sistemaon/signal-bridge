@@ -1,14 +1,56 @@
-{
-    strategyName: 'Diff Delta' // Name of strategy designed in Tradinview
-    pair: 'ETH/USDT'
-    chartTimeframe: '45min'
-    side: 'LONG' // long or short (buy or sell)
-    entry: '1800' // current price of the signal asset
+
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
+const conn = require('../../../configs/db.config');
+
+const TradingviewSchema = new Schema({
+    strategyName: {
+        type: String,
+        required: true
+    },
+    pair: {
+        type: String,
+        required: true
+    },
+    chartTimeframe: {
+        type: String,
+        required: true
+    },
+    side: {
+        type: String,
+        required: true,
+
+        // BOTH side is strategy that opens long and short position at the same time
+        enum: ['LONG', 'SHORT', 'BOTH']
+    },
+    entry: {
+        type: String,
+        required: true
+    },
     targets: {
-        t1: '1900'
-        t2: '2000'
-        t3: '2500'
-        t4: '3000'
+        type: Object,
+        required: false
+    },
+    stop: {
+        type: String,
+        required: false
+    },
+    sigalTradeType: {
+        type: String,
+        required: true,
+
+        // INDICATOR is signal trade type that depends on indicator to open and close position
+        // TARGET is signal trade type that sets the target to close position and set stop loss to protect position
+        enum: ['INDICATOR', 'TARGET']
+    },
+    signalTradeDate: {
+        type: Date,
+        required: true,
+        default: Date.now
     }
-    stop: '1500'
-};
+});
+
+const Tradingview = conn.model('Tradingview', TradingviewSchema);
+
+module.exports = Tradingview;
