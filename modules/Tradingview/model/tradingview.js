@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const conn = require('../../../configs/db.config');
 
-const TradingviewSchema = new Schema({
+const tradingviewSchema = new Schema({
     strategyName: {
         type: String,
         required: true
@@ -51,6 +51,6 @@ const TradingviewSchema = new Schema({
     }
 });
 
-const Tradingview = conn.model('Tradingview', TradingviewSchema);
+const tradingviewModel = conn.model('Tradingview', tradingviewSchema);
 
-module.exports = Tradingview;
+module.exports = tradingviewModel;
