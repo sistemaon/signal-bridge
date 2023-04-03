@@ -6,8 +6,7 @@ const logger = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 
-// const indexRouter = require('./routes/index');
-// const usersRouter = require('./routes/users');
+const tradingviewRouter = require('./modules/Tradingview/route/tradingview');
 
 const app = express();
 
@@ -18,8 +17,7 @@ app.use(cookieParser());
 app.use(cors());
 app.use(helmet());
 
-// app.use('/', indexRouter);
-// app.use('/users', usersRouter);
+app.use('/tradingview', tradingviewRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
