@@ -36,7 +36,7 @@ const tradingviewSchema = new Schema({
         type: String,
         required: false
     },
-    sigalTradeType: {
+    signalTradeType: {
         type: String,
         required: true,
 

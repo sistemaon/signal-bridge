@@ -6,6 +6,12 @@ const logger = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 
+const envs = require('./env');
+// Set environment variables
+for (const env in envs) {
+  process.env[env] = envs[env];
+}
+
 const tradingviewRouter = require('./modules/Tradingview/route/tradingview');
 
 const app = express();
@@ -17,7 +23,7 @@ app.use(cookieParser());
 app.use(cors());
 app.use(helmet());
 
-app.use('/tradingview', tradingviewRouter);
+app.use('/api/tradingview', tradingviewRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

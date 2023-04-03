@@ -6,12 +6,6 @@
 const app = require('../app');
 const debug = require('debug')('signal-bridge:server');
 const http = require('http');
-const envs = require('../env');
-
-// Set environment variables
-for (const env in envs) {
-  process.env[env] = envs[env];
-}
 
 /**
  * Get port from environment and store in Express.
