@@ -13,9 +13,9 @@ const createUser = async (req, res, next) => {
             exchange
         });
 
-        const user = await newUser.save();
+        const userSaved = await newUser.save();
 
-        return res.status(201).json(user);
+        return res.status(201).json(userSaved);
 
     } catch (error) {
         console.log("🚀 ~ file: user.js:9 ~ createUser ~ error:", error);
