@@ -14,6 +14,7 @@ for (const env in envs) {
 
 const tradingviewRouter = require('./modules/Tradingview/route/tradingview');
 const binanceRouter = require('./modules/Binance/route/binance');
+const userRouter = require('./modules/User/route/user');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(helmet());
 
 app.use('/api/tradingview', tradingviewRouter);
 app.use('/api/binance', binanceRouter);
+app.use('/api/user', userRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
