@@ -18,7 +18,7 @@ const createUser = async (req, res, next) => {
         return res.status(201).json(user);
 
     } catch (error) {
-        console.log("🚀 ~ file: user.js:9 ~ createUser ~ error:", error);
+        console.log("🚀 ~ file: user.js:21 ~ createUser ~ error:", error);
         return res.status(500).json({ error: error });
     }
 };
