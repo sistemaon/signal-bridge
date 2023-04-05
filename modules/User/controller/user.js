@@ -1,5 +1,5 @@
 
-const user = require('../model/user');
+const User = require('../model/user');
 
 const createUser = async (req, res, next) => {
     try {
@@ -8,14 +8,14 @@ const createUser = async (req, res, next) => {
             return res.status(400).json({ message: 'Missing required fields, please check again.' });
         }
         
-        const newUser = new user({
+        const newUser = new User({
             username,
             exchange
         });
 
-        const userSaved = await newUser.save();
+        const user = await newUser.save();
 
-        return res.status(201).json(userSaved);
+        return res.status(201).json(user);
 
     } catch (error) {
         console.log("🚀 ~ file: user.js:9 ~ createUser ~ error:", error);
