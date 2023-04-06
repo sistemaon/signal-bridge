@@ -21,7 +21,7 @@ const tradingviewSchema = new Schema({
         chronoUnit: {
             type: String,
             required: true,
-            enum: ['SECONDS', 'MINUTES', 'HOURS', 'DAYS', 'WEEKS', 'MONTHS', 'YEARS']
+            enum: ['SECOND', 'MINUTE', 'HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
         }
     },
     side: {
@@ -29,7 +29,7 @@ const tradingviewSchema = new Schema({
         required: true,
 
         // BOTH side is strategy that opens long and short position at the same time
-        enum: ['LONG', 'SHORT', 'BOTH']
+        enum: ['buy', 'sell', 'long', 'short', 'both']
     },
     entry: {
         type: String,
