@@ -63,19 +63,8 @@ createOrderSignalIndicator = async (req, res, next) => {
         });
         console.log("🚀 ~ file: tradingview.js:19 ~ createSignal ~ newSignal:", newSignal);
 
-        // Fetch the market information for the symbol
-        const binance = new ccxt.binance({
-            apiKey: process.env.API_KEY_BINANCE,
-            secret: process.env.API_SECRET_BINACE,
-            enableRateLimit: true,
-            options: {
-                defaultType: 'future'
-            }
-        });
         const marketSymbol = await Market.findOne({ symbol: pair });
         console.log("🚀 ~ file: binance.js:75 ~ createOrderSignalIndicator= ~ markets:", marketSymbol);
-        // const market = markets.find(binanceMarket => binanceMarket.symbol === pair);
-        // console.log("🚀 ~ file: binance.js:68 ~ createOrderSignalIndicator= ~ market:", market);
 
         // Get the minimum notional value
         const minNotional = marketSymbol.limits.cost.min;
