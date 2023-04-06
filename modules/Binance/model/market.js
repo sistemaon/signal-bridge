@@ -38,13 +38,13 @@ const binanceMarketSchema = new Schema({
         quote: { type: Number, required: false },
     },
     limits: {
-        leverage: { type: Array, required: false },
-        amount: { type: Array, required: false },
-        price: { type: Array, required: false },
-        cost: { type: Array, required: false },
-        market: { type: Array, required: false },
+        leverage: { type: Object, required: false },
+        amount: { type: Object, required: false },
+        price: { type: Object, required: false },
+        cost: { type: Object, required: false },
+        market: { type: Object, required: false },
     },
-    info: { type: Object, required: false },
+    info: { type: Object, required: false }
 });
 
 const binanceMarketModel = conn.model('Binancemarket', binanceMarketSchema);
