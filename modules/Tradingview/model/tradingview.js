@@ -14,8 +14,15 @@ const tradingviewSchema = new Schema({
         required: true
     },
     chartTimeframe: {
-        type: String,
-        required: true
+        chronoAmount: {
+            type: String,
+            required: true
+        },
+        chronoUnit: {
+            type: String,
+            required: true,
+            enum: ['SECONDS', 'MINUTES', 'HOURS', 'DAYS', 'WEEKS', 'MONTHS', 'YEARS']
+        }
     },
     side: {
         type: String,
