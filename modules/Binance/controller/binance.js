@@ -72,6 +72,28 @@ createOrderSignalIndicator = async (req, res, next) => {
         // Get the minimum notional value
         const minNotional = marketSymbol.limits.cost.min;
 
+        const users = await User.find();
+        const exchanges = await prepareRequestsBinanceExchange(users);
+
+        const verifyToOpenOrders = exchanges.map(async (exchange) => {
+            const balance = await exchange.fetchBalance();
+            const freeBalance = balance.free.USDT;
+
+            // if (freeBalance < minNotional) {
+            //     console.error(`Insufficient balance for user with API key ${exchange.apiKey}`);
+            //     return null;
+            // }
+
+            // TODO: Place an order using the exchange instance
+            // return order;
+            
+            return freeBalance;
+        });
+
+        const orders = await Promise.all(verifyToOpenOrders);
+        console.log("🚀 ~ file: binance.js:95 ~ createOrderSignalIndicator= ~ orders:", orders);
+
+
         // const createMarketOrder = await executeOrder(pair, 'market', side, 0.001);
         // console.log("🚀 ~ file: binance.js:83 ~ createOrderSignalIndicator= ~ createOrder:", createMarketOrder);
 
