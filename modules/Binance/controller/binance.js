@@ -64,11 +64,13 @@ createOrderSignalIndicator = async (req, res, next) => {
         console.log("🚀 ~ file: tradingview.js:19 ~ createSignal ~ newSignal:", newSignal);
 
         const marketSymbol = await Market.findOne({ symbol: pair });
-        console.log("🚀 ~ file: binance.js:75 ~ createOrderSignalIndicator= ~ markets:", marketSymbol);
+        if (!marketSymbol || !marketSymbol.limits.cost.min) {
+            console.error(`Market symbol ${pair} not found.`);
+            return;
+        }
 
         // Get the minimum notional value
         const minNotional = marketSymbol.limits.cost.min;
-        console.log(`The minimum notional value for ${pair} is ${minNotional}.`);
 
         // const createMarketOrder = await executeOrder(pair, 'market', side, 0.001);
         // console.log("🚀 ~ file: binance.js:83 ~ createOrderSignalIndicator= ~ createOrder:", createMarketOrder);
