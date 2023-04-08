@@ -66,7 +66,7 @@ createOrderSignalIndicator = async (req, res, next) => {
         const marketSymbol = await Market.findOne({ symbol: pair });
         if (!marketSymbol || !marketSymbol.limits.cost.min) {
             console.error(`Market symbol ${pair} not found.`);
-            return;
+            return res.status(400).json({ message: `Market symbol ${pair} not found.` });
         }
 
         // Get the minimum notional value
@@ -97,10 +97,10 @@ createOrderSignalIndicator = async (req, res, next) => {
         // const createMarketOrder = await executeOrder(pair, 'market', side, 0.001);
         // console.log("🚀 ~ file: binance.js:83 ~ createOrderSignalIndicator= ~ createOrder:", createMarketOrder);
 
-        // const savedSignal = await newSignal.save();
+        const savedSignal = await newSignal.save();
 
         // return res.status(201).json({ savedSignal });
-        return res.status(201).json({ data: req.body });
+        return res.status(201).json({ data: req.body, signal: savedSignal });
         // return res.status(201).json({ data: req.body, order: createMarketOrder });
 
     } catch (error) {
