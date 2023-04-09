@@ -17,7 +17,7 @@ const prepareRequestsBinanceExchange = async (users) => {
             enableRateLimit: true,
             options: defaultOptions
         });
-        return binance;
+        return { binance, user: { username: user.username } };
       });
       const responses = await Promise.all(promises);
       return responses;
