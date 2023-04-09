@@ -49,7 +49,6 @@ const executeOrder = async (symbol, type, side, amount) => {
 createOrderSignalIndicator = async (req, res, next) => {
     try {
         const { strategyName, pair, chartTimeframe, side, entry, targets, stop, signalTradeType } = req.body;
-        console.log("🚀 ~ file: tradingview.js:7 ~ createSignal ~ req.body:", req.body);
 
         const newSignal = new Tradingview({
             strategyName,
@@ -61,16 +60,21 @@ createOrderSignalIndicator = async (req, res, next) => {
             stop,
             signalTradeType
         });
-        console.log("🚀 ~ file: tradingview.js:19 ~ createSignal ~ newSignal:", newSignal);
+
+        if (!strategyName || !pair || !chartTimeframe || !chartTimeframe.chronoAmount || !!chartTimeframe.chronoUnit || !side || !entry || !targets || !stop || !signalTradeType) {
+            console.error('Missing parameters.');
+            return res.status(400).json({ message: 'Missing parameters.' });
+        }
 
         const marketSymbol = await Market.findOne({ symbol: pair });
-        if (!marketSymbol || !marketSymbol.limits.cost.min) {
+        if (!marketSymbol || !marketSymbol.limits.cost.min || !marketSymbol.precision.amount) {
             console.error(`Market symbol ${pair} not found.`);
             return res.status(400).json({ message: `Market symbol ${pair} not found.` });
         }
 
         // Get the minimum notional value
         const minNotional = marketSymbol.limits.cost.min;
+        const decimalPlaces = marketSymbol.precision.amount;
 
         const users = await User.find();
         const exchanges = await prepareRequestsBinanceExchange(users);
@@ -78,16 +82,28 @@ createOrderSignalIndicator = async (req, res, next) => {
         const verifyToOpenOrders = exchanges.map(async (exchange) => {
             const balance = await exchange.fetchBalance();
             const freeBalance = balance.free.USDT;
+            const percentageToOpenOrder = 0.02;
+            const balanceToOpenOrder = Math.trunc(freeBalance * percentageToOpenOrder);
+            console.log("🚀 ~ file: binance.js:83 ~ verifyToOpenOrders ~ balanceToOpenOrder:", balanceToOpenOrder)
 
-            // if (freeBalance < minNotional) {
-            //     console.error(`Insufficient balance for user with API key ${exchange.apiKey}`);
-            //     return null;
-            // }
-
-            // TODO: Place an order using the exchange instance
-            // return order;
+            if (balanceToOpenOrder < minNotional) {
+                console.error(`Insufficient balance for user with API key ${exchange.apiKey}`);
+                return null;
+            }
+            const amountBalanceToOpenOrder = balanceToOpenOrder / entry;
+            console.log("🚀 ~ file: binance.js:90 ~ verifyToOpenOrders ~ amountToOpenOrder:", amountBalanceToOpenOrder)
+            const factor = 10 ** decimalPlaces;
+            const amountToOpenOrder = Math.trunc(amountBalanceToOpenOrder * factor) / factor;
             
-            return freeBalance;
+            try {
+                const createMarketOrder = await executeOrder(pair, 'market', side, amountToOpenOrder);           
+                console.log("🚀 ~ file: binance.js:99 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder)
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+            
+            return { freeBalance: freeBalance, balanceToOpenOrder: balanceToOpenOrder, amountBalanceToOpenOrder: amountBalanceToOpenOrder, amountToOpenOrder: amountToOpenOrder };
         });
 
         const orders = await Promise.all(verifyToOpenOrders);
@@ -97,10 +113,11 @@ createOrderSignalIndicator = async (req, res, next) => {
         // const createMarketOrder = await executeOrder(pair, 'market', side, 0.001);
         // console.log("🚀 ~ file: binance.js:83 ~ createOrderSignalIndicator= ~ createOrder:", createMarketOrder);
 
-        const savedSignal = await newSignal.save();
+        // const savedSignal = await newSignal.save();
 
         // return res.status(201).json({ savedSignal });
-        return res.status(201).json({ data: req.body, signal: savedSignal });
+        // return res.status(201).json({ data: req.body, signal: savedSignal });
+        return res.status(201).json({ data: req.body, orders: orders, minNotional: minNotional, decimalPlaces: decimalPlaces });
         // return res.status(201).json({ data: req.body, order: createMarketOrder });
 
     } catch (error) {

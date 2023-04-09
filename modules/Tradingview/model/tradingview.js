@@ -28,7 +28,7 @@ const tradingviewSchema = new Schema({
         type: String,
         required: true,
 
-        // BOTH side is strategy that opens long and short position at the same time
+        // BOTH side is strategy that opens buy/long and sell/short position at the same time
         enum: ['buy', 'sell', 'long', 'short', 'both']
     },
     entry: {
