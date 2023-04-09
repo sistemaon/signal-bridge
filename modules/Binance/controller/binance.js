@@ -17,7 +17,8 @@ const prepareRequestsBinanceExchange = async (users) => {
             enableRateLimit: true,
             options: defaultOptions
         });
-        return { binance, user: { username: user.username } };
+        binance.userBotDb = { username: user.username };
+        return binance;
       });
       const responses = await Promise.all(promises);
       return responses;
@@ -61,7 +62,7 @@ createOrderSignalIndicator = async (req, res, next) => {
             signalTradeType
         });
 
-        if (!strategyName || !pair || !chartTimeframe || !chartTimeframe.chronoAmount || !!chartTimeframe.chronoUnit || !side || !entry || !targets || !stop || !signalTradeType) {
+        if (!strategyName || !pair || !chartTimeframe || !chartTimeframe.chronoAmount || !chartTimeframe.chronoUnit || !side || !entry || !signalTradeType) {
             console.error('Missing parameters.');
             return res.status(400).json({ message: 'Missing parameters.' });
         }
@@ -80,6 +81,7 @@ createOrderSignalIndicator = async (req, res, next) => {
         const exchanges = await prepareRequestsBinanceExchange(users);
 
         const verifyToOpenOrders = exchanges.map(async (exchange) => {
+            const user = exchange.userBotDb;
             const balance = await exchange.fetchBalance();
             const freeBalance = balance.free.USDT;
             const percentageToOpenOrder = 0.02;
@@ -95,15 +97,17 @@ createOrderSignalIndicator = async (req, res, next) => {
             const factor = 10 ** decimalPlaces;
             const amountToOpenOrder = Math.trunc(amountBalanceToOpenOrder * factor) / factor;
             
-            try {
-                const createMarketOrder = await executeOrder(pair, 'market', side, amountToOpenOrder);           
-                console.log("🚀 ~ file: binance.js:99 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder)
-            } catch (error) {
-                console.error(error);
-                return null;
-            }
+            // DONE CREATE ORDER (IT IS COMMENT BECAUSE I DON'T WANT TO OPEN ORDERS)
+            // try {
+            //     const createMarketOrder = await executeOrder(pair, 'market', side, amountToOpenOrder);           
+            //     console.log("🚀 ~ file: binance.js:99 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder)
+            // } catch (error) {
+            //     console.error(error);
+            //     return null;
+            // }
+            // DONE CREATE ORDER (IT IS COMMENT BECAUSE I DON'T WANT TO OPEN ORDERS)
             
-            return { freeBalance: freeBalance, balanceToOpenOrder: balanceToOpenOrder, amountBalanceToOpenOrder: amountBalanceToOpenOrder, amountToOpenOrder: amountToOpenOrder };
+            return { freeBalance: freeBalance, balanceToOpenOrder: balanceToOpenOrder, amountBalanceToOpenOrder: amountBalanceToOpenOrder, amountToOpenOrder: amountToOpenOrder, user: user };
         });
 
         const orders = await Promise.all(verifyToOpenOrders);
