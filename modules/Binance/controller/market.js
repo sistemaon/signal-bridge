@@ -16,10 +16,13 @@ const fetchAndSaveMarkets = async (req, res, next) => {
         const markets = await binance.fetchMarkets();
     
         for (const market of markets) {
-            const marketInfo = new Market(market);
-            await marketInfo.save();
+            await Market.findOneAndUpdate(
+                { id: market.id },
+                market,
+                { upsert: true }
+            );
         }
-        return res.status(201).json({ data: 'Binance markets saved.' });        
+        return res.status(201).json({ data: 'Binance markets saved and/or updated.' });        
     } catch (error) {
         console.log("🚀 ~ file: market.js:22 ~ fetchAndSaveMarkets ~ error:", error);
         return res.status(500).json({ error: error });
