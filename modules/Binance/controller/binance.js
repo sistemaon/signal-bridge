@@ -51,26 +51,15 @@ createOrderSignalIndicator = async (req, res, next) => {
     try {
         const { strategyName, pair, chartTimeframe, side, entry, targets, stop, signalTradeType } = req.body;
 
-        const newSignal = new Tradingview({
-            strategyName,
-            pair,
-            chartTimeframe,
-            side,
-            entry,
-            targets,
-            stop,
-            signalTradeType
-        });
-
         if (!strategyName || !pair || !chartTimeframe || !chartTimeframe.chronoAmount || !chartTimeframe.chronoUnit || !side || !entry || !signalTradeType) {
             console.error('Missing parameters.');
             return res.status(400).json({ message: 'Missing parameters.' });
         }
 
-        const marketSymbol = await Market.findOne({ symbol: pair });
+        const marketSymbol = await Market.findOne({ id: pair.replace('/', '') });
         if (!marketSymbol || !marketSymbol.limits.cost.min || !marketSymbol.precision.amount) {
             console.error(`Market symbol ${pair} not found.`);
-            return res.status(400).json({ message: `Market symbol ${pair} not found.` });
+            return res.status(400).json({ message: `Market symbol params needed is not found.` });
         }
 
         // Get the minimum notional value
@@ -84,7 +73,7 @@ createOrderSignalIndicator = async (req, res, next) => {
             const user = exchange.userBotDb;
             const balance = await exchange.fetchBalance();
             const freeBalance = balance.free.USDT;
-            const percentageToOpenOrder = 0.02;
+            const percentageToOpenOrder = 0.03;
             const balanceToOpenOrder = Math.trunc(freeBalance * percentageToOpenOrder);
             console.log("🚀 ~ file: binance.js:83 ~ verifyToOpenOrders ~ balanceToOpenOrder:", balanceToOpenOrder)
 
@@ -96,7 +85,7 @@ createOrderSignalIndicator = async (req, res, next) => {
             console.log("🚀 ~ file: binance.js:90 ~ verifyToOpenOrders ~ amountToOpenOrder:", amountBalanceToOpenOrder)
             const factor = 10 ** decimalPlaces;
             const amountToOpenOrder = Math.trunc(amountBalanceToOpenOrder * factor) / factor;
-            
+
             // DONE CREATE ORDER (IT IS COMMENT BECAUSE I DON'T WANT TO OPEN ORDERS)
             // try {
             //     const createMarketOrder = await executeOrder(pair, 'market', side, amountToOpenOrder);           
@@ -106,23 +95,27 @@ createOrderSignalIndicator = async (req, res, next) => {
             //     return null;
             // }
             // DONE CREATE ORDER (IT IS COMMENT BECAUSE I DON'T WANT TO OPEN ORDERS)
-            
-            return { freeBalance: freeBalance, balanceToOpenOrder: balanceToOpenOrder, amountBalanceToOpenOrder: amountBalanceToOpenOrder, amountToOpenOrder: amountToOpenOrder, user: user };
+
+            return { minNotional: minNotional, decimalPlaces: decimalPlaces, currentPrice: entry, amountToOpenOrder: amountToOpenOrder };
+            // return { amountT: amountT, roundedAmountT: roundedAmountT, freeBalance: freeBalance, balanceToOpenOrder: balanceToOpenOrder, amountBalanceToOpenOrder: amountBalanceToOpenOrder, amountToOpenOrder: amountToOpenOrder, user: user };
         });
 
         const orders = await Promise.all(verifyToOpenOrders);
         console.log("🚀 ~ file: binance.js:95 ~ createOrderSignalIndicator= ~ orders:", orders);
 
-
-        // const createMarketOrder = await executeOrder(pair, 'market', side, 0.001);
-        // console.log("🚀 ~ file: binance.js:83 ~ createOrderSignalIndicator= ~ createOrder:", createMarketOrder);
-
+        // const newSignal = new Tradingview({
+        //     strategyName,
+        //     pair,
+        //     chartTimeframe,
+        //     side,
+        //     entry,
+        //     targets,
+        //     stop,
+        //     signalTradeType
+        // });
         // const savedSignal = await newSignal.save();
 
-        // return res.status(201).json({ savedSignal });
-        // return res.status(201).json({ data: req.body, signal: savedSignal });
         return res.status(201).json({ data: req.body, orders: orders, minNotional: minNotional, decimalPlaces: decimalPlaces });
-        // return res.status(201).json({ data: req.body, order: createMarketOrder });
 
     } catch (error) {
         console.log("🚀 ~ file: tradingview.js: ~ createSignal ~ error:", error);
