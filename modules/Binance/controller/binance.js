@@ -34,7 +34,8 @@ const executeOrder = async (symbol, type, side, amount) => {
         const exchanges = await prepareRequestsBinanceExchange(users);
         const orders = await Promise.all(
             exchanges.map(async (exchange) => {
-                console.log("🚀 ~ file: binance.js:37 ~ exchanges.map ~ exchange:", exchange)
+                const user = exchange.userBotDb;
+                console.log("🚀 ~ file: binance.js:38 ~ exchanges.map ~ user:", user)
                 const order = await exchange.createOrder(symbol, type, side, amount);
                 console.log("🚀 ~ file: binance.js:53 ~ exchanges.map ~ order:", order);
                 return order;
