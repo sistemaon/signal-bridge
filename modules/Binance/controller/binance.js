@@ -4,6 +4,7 @@ const ccxt = require('ccxt');
 const User = require('../../User/model/user');
 const Tradingview = require('../../Tradingview/model/tradingview');
 const Market = require('../model/market');
+const Order = require('../model/order');
 
 const prepareRequestsBinanceExchange = async (users) => {
     try {
@@ -17,7 +18,7 @@ const prepareRequestsBinanceExchange = async (users) => {
             enableRateLimit: true,
             options: defaultOptions
         });
-        binance.userBotDb = { username: user.username };
+        binance.userBotDb = { userId: user._id, username: user.username };
         return binance;
       });
       const responses = await Promise.all(promises);
@@ -38,6 +39,35 @@ const executeOrder = async (symbol, type, side, amount) => {
                 console.log("🚀 ~ file: binance.js:38 ~ exchanges.map ~ user:", user)
                 const order = await exchange.createOrder(symbol, type, side, amount);
                 console.log("🚀 ~ file: binance.js:53 ~ exchanges.map ~ order:", order);
+                const saveUserOrder = new Order({
+                    info: order.info,
+                    id: order.id,
+                    clientOrderId: order.clientOrderId,
+                    timestamp: order.timestamp,
+                    datetime: order.datetime,
+                    lastTradeTimestamp: order.lastTradeTimestamp,
+                    symbol: order.symbol,
+                    type: order.type,
+                    timeInForce: order.timeInForce,
+                    postOnly: order.postOnly,
+                    reduceOnly: order.reduceOnly,
+                    side: order.side,
+                    price: order.price,
+                    triggerPrice: order.triggerPrice,
+                    amount: order.amount,
+                    cost: order.cost,
+                    average: order.average,
+                    filled: order.filled,
+                    remaining: order.remaining,
+                    status: order.status,
+                    fee: order.fee,
+                    trades: order.trades,
+                    fees: order.fees,
+                    stopPrice: order.stopPrice,
+                    user: user.userId
+                });
+                const userOrder = await saveUserOrder.save();
+                console.log("🚀 ~ file: binance.js:70 ~ exchanges.map ~ userOrder:", userOrder)
                 return order;
             })
         );
