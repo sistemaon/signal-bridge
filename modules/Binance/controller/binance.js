@@ -34,6 +34,7 @@ const executeOrder = async (symbol, type, side, amount) => {
         const exchanges = await prepareRequestsBinanceExchange(users);
         const orders = await Promise.all(
             exchanges.map(async (exchange) => {
+                console.log("🚀 ~ file: binance.js:37 ~ exchanges.map ~ exchange:", exchange)
                 const order = await exchange.createOrder(symbol, type, side, amount);
                 console.log("🚀 ~ file: binance.js:53 ~ exchanges.map ~ order:", order);
                 return order;
@@ -87,13 +88,13 @@ createOrderSignalIndicator = async (req, res, next) => {
             const amountToOpenOrder = Math.trunc(amountBalanceToOpenOrder * factor) / factor;
 
             // DONE CREATE ORDER (IT IS COMMENT BECAUSE I DON'T WANT TO OPEN ORDERS)
-            // try {
-            //     const createMarketOrder = await executeOrder(pair, 'market', side, amountToOpenOrder);           
-            //     console.log("🚀 ~ file: binance.js:99 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder)
-            // } catch (error) {
-            //     console.error(error);
-            //     return null;
-            // }
+            try {
+                const createMarketOrder = await executeOrder(pair, 'market', side, amountToOpenOrder);           
+                console.log("🚀 ~ file: binance.js:99 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder)
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
             // DONE CREATE ORDER (IT IS COMMENT BECAUSE I DON'T WANT TO OPEN ORDERS)
 
             return { minNotional: minNotional, decimalPlaces: decimalPlaces, currentPrice: entry, amountToOpenOrder: amountToOpenOrder };
@@ -123,26 +124,8 @@ createOrderSignalIndicator = async (req, res, next) => {
     }
 };
 
-const getBalance = async (req, res, next) => {
-    try {
-        const users = await User.find();
-        const exchanges = await prepareRequestsBinanceExchange(users);
-        const balances = await Promise.all(
-            exchanges.map(async (exchange) => {
-                const balance = await exchange.fetchBalance();
-                return balance.total;
-            })
-        );
-        return res.status(200).json(balances);
-    } catch (error) {
-        console.error(error);
-        return error;
-    }
-};
-
 
 const binanceController = {
-    getBalance,
     createOrderSignalIndicator
 };
 
