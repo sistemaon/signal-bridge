@@ -48,6 +48,9 @@ const executeOrder = async (symbol, type, side, amount) => {
     }
 };
 
+// minNotional / current price = amount in coins (to open order)
+// amount in coins * current price = amount in USDT (to open order)
+
 createOrderSignalIndicator = async (req, res, next) => {
     try {
         const { strategyName, pair, chartTimeframe, side, entry, targets, stop, signalTradeType } = req.body;
