@@ -8,28 +8,66 @@ const Order = require('../model/order');
 
 const prepareRequestsBinanceExchange = async (users) => {
     try {
-      const promises = users.map(async user => {
-        const defaultOptions = {
-            defaultType: 'future',
-            timeout: 60000,
-            verbose: true,
-            reconnect: true,
-        };
-        const binance = new ccxt.binance({
-            apiKey: user.exchange.binance.apiKey,
-            secret: user.exchange.binance.apiSecret,
-            enableRateLimit: true,
-            options: defaultOptions
+        const promises = users.map(async user => {
+            const defaultOptions = {
+                defaultType: 'future',
+                timeout: 60000,
+                verbose: true,
+                reconnect: true,
+            };
+            const binance = new ccxt.binance({
+                apiKey: user.exchange.binance.apiKey,
+                secret: user.exchange.binance.apiSecret,
+                enableRateLimit: true,
+                options: defaultOptions
+            });
+            binance.userBotDb = { userId: user._id, username: user.username };
+            return binance;
         });
-        binance.userBotDb = { userId: user._id, username: user.username };
-        return binance;
-      });
-      const responses = await Promise.all(promises);
-      return responses;
+        const responses = await Promise.all(promises);
+        return responses;
     } catch (error) {
-      console.error({ error });
-      throw new Error('Failed to prepare requests for Binance exchange.');
+        console.error({ error });
+        throw new Error('Failed to prepare requests for Binance exchange.');
     }
+};
+
+const saveExecutedOrder = async (order, user) => {
+    // DONE READY TO OPEN ORDERS
+    // // console.log("🚀 ~ file: binance.js:38 ~ exchanges.map ~ user:", user);
+    // const order = await exchange.createOrder(symbol, type, side, amount);
+    // console.log("🚀 ~ file: binance.js:53 ~ exchanges.map ~ order:", order);
+    // const saveUserOrder = new Order({
+    //     info: order.info,
+    //     id: order.id,
+    //     clientOrderId: order.clientOrderId,
+    //     timestamp: order.timestamp,
+    //     datetime: order.datetime,
+    //     lastTradeTimestamp: order.lastTradeTimestamp,
+    //     symbol: order.symbol,
+    //     type: order.type,
+    //     timeInForce: order.timeInForce,
+    //     postOnly: order.postOnly,
+    //     reduceOnly: order.reduceOnly,
+    //     side: order.side,
+    //     price: order.price,
+    //     triggerPrice: order.triggerPrice,
+    //     amount: order.amount,
+    //     cost: order.cost,
+    //     average: order.average,
+    //     filled: order.filled,
+    //     remaining: order.remaining,
+    //     status: order.status,
+    //     fee: order.fee,
+    //     trades: order.trades,
+    //     fees: order.fees,
+    //     stopPrice: order.stopPrice,
+    //     user: user.userId
+    // });
+    // const userOrder = await saveUserOrder.save();
+    // // console.log("🚀 ~ file: binance.js:70 ~ exchanges.map ~ userOrder:", userOrder)
+    // return order;
+    // DONE READY TO OPEN ORDERS
 };
 
 const executeOrder = async (symbol, type, side, amount) => {
@@ -40,7 +78,7 @@ const executeOrder = async (symbol, type, side, amount) => {
             exchanges.map(async (exchange) => {
                 const user = exchange.userBotDb;
 
-                console.log("🚀 ~ file: binance.js:41 ~ exchanges.map ~ symbol:", {symbol});
+                console.log("🚀 ~ file: binance.js:41 ~ exchanges.map ~ symbol:", { symbol });
                 const userLastPositionSymbol = await exchange.fetchAccountPositions([symbol]);
                 console.log("🚀 ~ file: binance.js:41 ~ exchanges.map ~ userLastPositionSymbol:", userLastPositionSymbol[0]);
 
@@ -52,9 +90,9 @@ const executeOrder = async (symbol, type, side, amount) => {
                     console.log("🚀 ~ file: binance.js:50 ~ exchanges.map ~ order:", order);
                     return order;
                 }
-                console.log("🚀 ~ file: binance.js:33 ~ executeOrder ~ side:", {side})
+                console.log("🚀 ~ file: binance.js:33 ~ executeOrder ~ side:", { side })
                 const positionSide = userLastPositionSymbol[0]['side'];
-                console.log("🚀 ~ file: binance.js:54 ~ exchanges.map ~ positionSide:", {positionSide})
+                console.log("🚀 ~ file: binance.js:54 ~ exchanges.map ~ positionSide:", { positionSide })
                 if (side === 'buy' && positionSide === 'long') {
                     return `Long/Buy position on ${symbol} already exists.`;
                 }
@@ -166,7 +204,7 @@ createOrderSignalIndicator = async (req, res, next) => {
 
             // DONE CREATE ORDER (IT IS COMMENT BECAUSE I DON'T WANT TO OPEN ORDERS)
             try {
-                const createMarketOrder = await executeOrder(pair, 'market', side, amountToOpenOrder);           
+                const createMarketOrder = await executeOrder(pair, 'market', side, amountToOpenOrder);
                 console.log("🚀 ~ file: binance.js:168 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder);
             } catch (error) {
                 console.error(error);
