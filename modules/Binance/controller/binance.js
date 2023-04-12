@@ -36,17 +36,33 @@ const executeOrder = async (symbol, type, side, amount) => {
         const orders = await Promise.all(
             exchanges.map(async (exchange) => {
                 const user = exchange.userBotDb;
-
+                
                 console.log("🚀 ~ file: binance.js:41 ~ exchanges.map ~ symbol:", {symbol});
                 const userLastPositionSymbol = await exchange.fetchAccountPositions([symbol]);
                 console.log("🚀 ~ file: binance.js:41 ~ exchanges.map ~ userLastPositionSymbol:", userLastPositionSymbol[0]);
-
+                
                 const positionAmount = Number(userLastPositionSymbol[0].info['positionAmt']);
-                console.log("🚀 ~ file: binance.js:45 ~ exchanges.map ~ positionAmount:", positionAmount)
-
+                console.log("🚀 ~ file: binance.js:45 ~ exchanges.map ~ positionAmount:", positionAmount);
+                
                 if (positionAmount === 0) {
                     const order = await exchange.createOrder(symbol, type, side, amount);
                     console.log("🚀 ~ file: binance.js:50 ~ exchanges.map ~ order:", order);
+                    return order;
+                }
+                
+                console.log("🚀 ~ file: binance.js:33 ~ executeOrder ~ side:", {side})
+                const positionSide = userLastPositionSymbol[0]['side'];
+                console.log("🚀 ~ file: binance.js:54 ~ exchanges.map ~ positionSide:", {positionSide})
+                if (side === 'buy' && positionSide === 'long') {
+                    return `Long/Buy position on ${symbol} already exists.`;
+                }
+                if (side === 'sell' && positionSide === 'short') {
+                    return `Short/Sell position on ${symbol} already exists.`;
+                }
+
+                if (positionSide === 'long' && side === 'sell') {
+                    const order = await exchange.createOrder(symbol, type, side, positionAmount);
+                    console.log("🚀 ~ file: binance.js:65 ~ exchanges.map ~ order:", order)
                     return order;
                 }
 
@@ -148,7 +164,7 @@ createOrderSignalIndicator = async (req, res, next) => {
             // DONE CREATE ORDER (IT IS COMMENT BECAUSE I DON'T WANT TO OPEN ORDERS)
             try {
                 const createMarketOrder = await executeOrder(pair, 'market', side, amountToOpenOrder);           
-                // console.log("🚀 ~ file: binance.js:99 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder);
+                // console.log("🚀 ~ file: binance.js:158 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder);
             } catch (error) {
                 console.error(error);
                 return null;
