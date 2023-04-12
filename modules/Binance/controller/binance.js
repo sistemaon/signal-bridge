@@ -36,39 +36,45 @@ const executeOrder = async (symbol, type, side, amount) => {
         const orders = await Promise.all(
             exchanges.map(async (exchange) => {
                 const user = exchange.userBotDb;
-                console.log("🚀 ~ file: binance.js:38 ~ exchanges.map ~ user:", user)
-                const order = await exchange.createOrder(symbol, type, side, amount);
-                console.log("🚀 ~ file: binance.js:53 ~ exchanges.map ~ order:", order);
-                const saveUserOrder = new Order({
-                    info: order.info,
-                    id: order.id,
-                    clientOrderId: order.clientOrderId,
-                    timestamp: order.timestamp,
-                    datetime: order.datetime,
-                    lastTradeTimestamp: order.lastTradeTimestamp,
-                    symbol: order.symbol,
-                    type: order.type,
-                    timeInForce: order.timeInForce,
-                    postOnly: order.postOnly,
-                    reduceOnly: order.reduceOnly,
-                    side: order.side,
-                    price: order.price,
-                    triggerPrice: order.triggerPrice,
-                    amount: order.amount,
-                    cost: order.cost,
-                    average: order.average,
-                    filled: order.filled,
-                    remaining: order.remaining,
-                    status: order.status,
-                    fee: order.fee,
-                    trades: order.trades,
-                    fees: order.fees,
-                    stopPrice: order.stopPrice,
-                    user: user.userId
-                });
-                const userOrder = await saveUserOrder.save();
-                console.log("🚀 ~ file: binance.js:70 ~ exchanges.map ~ userOrder:", userOrder)
-                return order;
+                const fetchUserOrders = await exchange.fetchOpenOrders(symbol);
+                console.log("🚀 ~ file: binance.js:40 ~ exchanges.map ~ fetchUserOrders:", fetchUserOrders);
+                return fetchUserOrders;
+
+                // DONE READY TO OPEN ORDERS
+                // // console.log("🚀 ~ file: binance.js:38 ~ exchanges.map ~ user:", user);
+                // const order = await exchange.createOrder(symbol, type, side, amount);
+                // // console.log("🚀 ~ file: binance.js:53 ~ exchanges.map ~ order:", order);
+                // const saveUserOrder = new Order({
+                //     info: order.info,
+                //     id: order.id,
+                //     clientOrderId: order.clientOrderId,
+                //     timestamp: order.timestamp,
+                //     datetime: order.datetime,
+                //     lastTradeTimestamp: order.lastTradeTimestamp,
+                //     symbol: order.symbol,
+                //     type: order.type,
+                //     timeInForce: order.timeInForce,
+                //     postOnly: order.postOnly,
+                //     reduceOnly: order.reduceOnly,
+                //     side: order.side,
+                //     price: order.price,
+                //     triggerPrice: order.triggerPrice,
+                //     amount: order.amount,
+                //     cost: order.cost,
+                //     average: order.average,
+                //     filled: order.filled,
+                //     remaining: order.remaining,
+                //     status: order.status,
+                //     fee: order.fee,
+                //     trades: order.trades,
+                //     fees: order.fees,
+                //     stopPrice: order.stopPrice,
+                //     user: user.userId
+                // });
+                // const userOrder = await saveUserOrder.save();
+                // // console.log("🚀 ~ file: binance.js:70 ~ exchanges.map ~ userOrder:", userOrder)
+                // return order;
+                // DONE READY TO OPEN ORDERS
             })
         );
         console.log("🚀 ~ file: binance.js:57 ~ executeMarketOrder ~ orders:", orders);
