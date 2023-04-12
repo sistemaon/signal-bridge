@@ -65,6 +65,11 @@ const executeOrder = async (symbol, type, side, amount) => {
                     console.log("🚀 ~ file: binance.js:65 ~ exchanges.map ~ order:", order)
                     return order;
                 }
+                if (positionSide === 'short' && side === 'buy') {
+                    const order = await exchange.createOrder(symbol, type, side, positionAmount);
+                    console.log("🚀 ~ file: binance.js:65 ~ exchanges.map ~ order:", order)
+                    return order;
+                }
 
                 
 
