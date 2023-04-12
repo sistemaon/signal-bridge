@@ -36,14 +36,32 @@ const executeOrder = async (symbol, type, side, amount) => {
         const orders = await Promise.all(
             exchanges.map(async (exchange) => {
                 const user = exchange.userBotDb;
-                const fetchUserOrders = await exchange.fetchOpenOrders(symbol);
-                console.log("🚀 ~ file: binance.js:40 ~ exchanges.map ~ fetchUserOrders:", fetchUserOrders);
-                return fetchUserOrders;
+
+                console.log("🚀 ~ file: binance.js:41 ~ exchanges.map ~ symbol:", {symbol});
+                const userLastPositionSymbol = await exchange.fetchAccountPositions([symbol]);
+                console.log("🚀 ~ file: binance.js:41 ~ exchanges.map ~ userLastPositionSymbol:", userLastPositionSymbol[0]);
+
+                const positionAmount = Number(userLastPositionSymbol[0].info['positionAmt']);
+                console.log("🚀 ~ file: binance.js:45 ~ exchanges.map ~ positionAmount:", positionAmount)
+
+                if (positionAmount === 0) {
+                    const order = await exchange.createOrder(symbol, type, side, amount);
+                    console.log("🚀 ~ file: binance.js:50 ~ exchanges.map ~ order:", order);
+                    return order;
+                }
+
+                
+
+
+                // const fetchUserTrades = await exchange.fetchMyTrades(symbol);
+                // const userLastTrade = fetchUserTrades[fetchUserTrades.length - 1];
+                // const userLastPositionSymbol = await exchange.fetchAccountPositions([userLastTrade.symbol]); // userLastTrade.symbol
+                // // return userLastTrade;
 
                 // DONE READY TO OPEN ORDERS
                 // // console.log("🚀 ~ file: binance.js:38 ~ exchanges.map ~ user:", user);
                 // const order = await exchange.createOrder(symbol, type, side, amount);
-                // // console.log("🚀 ~ file: binance.js:53 ~ exchanges.map ~ order:", order);
+                // console.log("🚀 ~ file: binance.js:53 ~ exchanges.map ~ order:", order);
                 // const saveUserOrder = new Order({
                 //     info: order.info,
                 //     id: order.id,
@@ -77,7 +95,7 @@ const executeOrder = async (symbol, type, side, amount) => {
                 // DONE READY TO OPEN ORDERS
             })
         );
-        console.log("🚀 ~ file: binance.js:57 ~ executeMarketOrder ~ orders:", orders);
+        // console.log("🚀 ~ file: binance.js:57 ~ executeMarketOrder ~ orders:", orders);
         return orders;
     } catch (error) {
         console.error(error);
@@ -116,21 +134,21 @@ createOrderSignalIndicator = async (req, res, next) => {
             const freeBalance = balance.free.USDT;
             const percentageToOpenOrder = 0.03;
             const balanceToOpenOrder = Math.trunc(freeBalance * percentageToOpenOrder);
-            console.log("🚀 ~ file: binance.js:83 ~ verifyToOpenOrders ~ balanceToOpenOrder:", balanceToOpenOrder)
+            // console.log("🚀 ~ file: binance.js:83 ~ verifyToOpenOrders ~ balanceToOpenOrder:", balanceToOpenOrder);
 
             if (balanceToOpenOrder < minNotional) {
                 console.error(`Insufficient balance for user with API key ${exchange.apiKey}`);
                 return null;
             }
             const amountBalanceToOpenOrder = balanceToOpenOrder / entry;
-            console.log("🚀 ~ file: binance.js:90 ~ verifyToOpenOrders ~ amountToOpenOrder:", amountBalanceToOpenOrder)
+            // console.log("🚀 ~ file: binance.js:90 ~ verifyToOpenOrders ~ amountToOpenOrder:", amountBalanceToOpenOrder);
             const factor = 10 ** decimalPlaces;
-            const amountToOpenOrder = Math.trunc(amountBalanceToOpenOrder * factor) / factor;
+            const amountToOpenOrder = 0.003 // Math.trunc(amountBalanceToOpenOrder * factor) / factor;
 
             // DONE CREATE ORDER (IT IS COMMENT BECAUSE I DON'T WANT TO OPEN ORDERS)
             try {
                 const createMarketOrder = await executeOrder(pair, 'market', side, amountToOpenOrder);           
-                console.log("🚀 ~ file: binance.js:99 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder)
+                // console.log("🚀 ~ file: binance.js:99 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder);
             } catch (error) {
                 console.error(error);
                 return null;
