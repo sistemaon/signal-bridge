@@ -3,10 +3,9 @@ const ccxt = require('ccxt');
 
 const User = require('../../User/model/user');
 const Market = require('../model/market');
-const Order = require('../model/order');
 
 const { createIndicatorSignal } = require('../../Tradingview/controller/tradingview');
-
+const { saveExecutedOrder } = require('./order');
 
 const prepareRequestsBinanceExchange = async (users) => {
     try {
@@ -32,37 +31,6 @@ const prepareRequestsBinanceExchange = async (users) => {
         console.error({ error });
         throw new Error('Failed to prepare requests for Binance exchange.');
     }
-};
-
-const saveExecutedOrder = async (order, user) => {
-    const saveUserOrder = new Order({
-        info: order.info,
-        id: order.id,
-        clientOrderId: order.clientOrderId,
-        timestamp: order.timestamp,
-        datetime: order.datetime,
-        lastTradeTimestamp: order.lastTradeTimestamp,
-        symbol: order.symbol,
-        type: order.type,
-        timeInForce: order.timeInForce,
-        postOnly: order.postOnly,
-        reduceOnly: order.reduceOnly,
-        side: order.side,
-        price: order.price,
-        triggerPrice: order.triggerPrice,
-        amount: order.amount,
-        cost: order.cost,
-        average: order.average,
-        filled: order.filled,
-        remaining: order.remaining,
-        status: order.status,
-        fee: order.fee,
-        trades: order.trades,
-        fees: order.fees,
-        stopPrice: order.stopPrice,
-        user: user.userId
-    });
-    return await saveUserOrder.save();
 };
 
 const executeOrder = async (symbol, type, side, amount) => {
