@@ -1,32 +1,28 @@
 
 const Tradingview = require('../model/tradingview');
 
-const createSignal = async (req, res, next) => {
+
+const createIndicatorSignal = async (signalInfo) => {
+    console.log("🚀 ~ file: tradingview.js:6 ~ createIndicatorSignal ~ signalInfo:", signalInfo)
     try {
-        const { strategyName, pair, chartTimeframe, side, entry, targets, stop, signalTradeType } = req.body;
-
-        const tradingviewNewSignal = new Tradingview({
-            strategyName,
-            pair,
-            chartTimeframe,
-            side,
-            entry,
-            targets,
-            stop,
-            signalTradeType
+        const newSignal = new Tradingview({
+            strategyName: signalInfo.strategyName,
+            pair: signalInfo.pair,
+            chartTimeframe: signalInfo.chartTimeframe,
+            side: signalInfo.side,
+            entry: signalInfo.entry,
+            signalTradeType: 'INDICATOR'
         });
-
-        const tradingviewSignal = await tradingviewNewSignal.save();
-
-        return res.status(201).json({ data: req.body, signal: tradingviewSignal });
-
+        console.log("🚀 ~ file: tradingview.js:14 ~ createIndicatorSignal ~ newSignal:", newSignal)
+        return await newSignal.save();
     } catch (error) {
-        return res.status(500).json({ error: error });
+        console.error(error);
+        return error;
     }
 };
 
 const tradingviewController = {
-    createSignal
+    createIndicatorSignal
 };
 
 module.exports = tradingviewController;
