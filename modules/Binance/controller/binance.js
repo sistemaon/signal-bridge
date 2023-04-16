@@ -12,14 +12,14 @@ const prepareRequestsBinanceExchange = async (users) => {
         const promises = users.map(async user => {
             const defaultOptions = {
                 defaultType: 'future',
-                timeout: 60000,
-                verbose: true,
-                reconnect: true,
+                timeout: process.env.TIMEOUT_OPTION_BINANCE,
+                verbose: process.env.VERBOSE_OPTION_BINANCE,
+                reconnect: process.env.RECONNECT_OPTION_BINANCE,
             };
             const binance = new ccxt.binance({
                 apiKey: user.exchange.binance.apiKey,
                 secret: user.exchange.binance.apiSecret,
-                enableRateLimit: true,
+                enableRateLimit: process.env.ENABLE_RATE_LIMIT_OPTION_BINANCE,
                 options: defaultOptions
             });
             binance.userBotDb = { userId: user._id, username: user.username };
@@ -33,7 +33,7 @@ const prepareRequestsBinanceExchange = async (users) => {
     }
 };
 
-const executeOrder = async (symbol, type, side, amount) => {
+const executeBinanceOrder = async (symbol, type, side, amount) => {
     try {
         const users = await User.find();
         const exchanges = await prepareRequestsBinanceExchange(users);
@@ -124,7 +124,7 @@ createOrderSignalIndicator = async (req, res, next) => {
 
             // DONE CREATE AND SAVE ORDER
             try {
-                const createMarketOrder = await executeOrder(pair, 'market', side, amountToOpenOrder);
+                const createMarketOrder = await executeBinanceOrder(pair, 'market', side, amountToOpenOrder);
                 console.log("🚀 ~ file: binance.js:168 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder);
                 return createMarketOrder;
             } catch (error) {
@@ -137,12 +137,13 @@ createOrderSignalIndicator = async (req, res, next) => {
         const orders = await Promise.all(verifyToOpenOrders);
         console.log("🚀 ~ file: binance.js:95 ~ createOrderSignalIndicator= ~ orders:", orders);
 
+        // TODO - TO RELATION SIGNAL TO USER ORDER IF POSITION IS OPENED
         const savedSignal = await createIndicatorSignal(req.body);
 
         return res.status(201).json({ orders: orders[0], savedSignal: savedSignal });
 
     } catch (error) {
-        console.log("🚀 ~ file: tradingview.js: ~ createSignal ~ error:", error);
+        console.error(error);
         return res.status(500).json({ error: error });
     }
 };
