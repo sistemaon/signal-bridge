@@ -11,10 +11,10 @@ const prepareRequestsBinanceExchange = async (users) => {
     try {
         const promises = users.map(async user => {
             const defaultOptions = {
-                defaultType: 'future',
+                defaultType: process.env.DEFAULT_TYPE_OPTION_BINANCE,
                 timeout: process.env.TIMEOUT_OPTION_BINANCE,
                 verbose: process.env.VERBOSE_OPTION_BINANCE,
-                reconnect: process.env.RECONNECT_OPTION_BINANCE,
+                reconnect: process.env.RECONNECT_OPTION_BINANCE
             };
             const binance = new ccxt.binance({
                 apiKey: user.exchange.binance.apiKey,
@@ -122,7 +122,7 @@ createOrderSignalIndicator = async (req, res, next) => {
             const factor = 10 ** decimalPlaces;
             const amountToOpenOrder = 0.003 // Math.trunc(amountBalanceToOpenOrder * factor) / factor;
 
-            // DONE CREATE AND SAVE ORDER
+            // NOTE: DONE CREATE AND SAVE ORDER
             try {
                 const createMarketOrder = await executeBinanceOrder(pair, 'market', side, amountToOpenOrder);
                 console.log("🚀 ~ file: binance.js:168 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder);
@@ -131,14 +131,21 @@ createOrderSignalIndicator = async (req, res, next) => {
                 console.error(error);
                 return null;
             }
-            // DONE CREATE AND SAVE ORDER
+            // NOTE: DONE CREATE AND SAVE ORDER
         });
 
         const orders = await Promise.all(verifyToOpenOrders);
-        console.log("🚀 ~ file: binance.js:95 ~ createOrderSignalIndicator= ~ orders:", orders);
 
-        // TODO - TO RELATION SIGNAL TO USER ORDER IF POSITION IS OPENED
-        const savedSignal = await createIndicatorSignal(req.body);
+        // TODO:
+        // TO RELATION SIGNAL TO USER ORDER IF POSITION IS OPENED
+        let usersOrdersIds = [];
+        if (orders[0]) {
+            console.log("🚀 ~ file: binance.js:145 ~ createOrderSignalIndicator= ~ orders[0]:", {or: orders[0]})
+            console.error('Failed to save signal.');
+            usersOrdersIds = orders[0].map(order => order.saveUserOder._id);
+            console.log("🚀 ~ file: binance.js:148 ~ createOrderSignalIndicator= ~ usersOrdersIds:", usersOrdersIds);
+        }
+        const savedSignal = await createIndicatorSignal(req.body, usersOrdersIds);
 
         return res.status(201).json({ orders: orders[0], savedSignal: savedSignal });
 
