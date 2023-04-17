@@ -2,8 +2,7 @@
 const Tradingview = require('../model/tradingview');
 
 
-const createIndicatorSignal = async (signalInfo) => {
-    console.log("🚀 ~ file: tradingview.js:6 ~ createIndicatorSignal ~ signalInfo:", signalInfo)
+const createIndicatorSignal = async (signalInfo, orders) => {
     try {
         const newSignal = new Tradingview({
             strategyName: signalInfo.strategyName,
@@ -11,9 +10,9 @@ const createIndicatorSignal = async (signalInfo) => {
             chartTimeframe: signalInfo.chartTimeframe,
             side: signalInfo.side,
             entry: signalInfo.entry,
-            signalTradeType: 'INDICATOR'
+            signalTradeType: 'INDICATOR',
+            orders: orders ? orders : []
         });
-        console.log("🚀 ~ file: tradingview.js:14 ~ createIndicatorSignal ~ newSignal:", newSignal)
         return await newSignal.save();
     } catch (error) {
         console.error(error);
