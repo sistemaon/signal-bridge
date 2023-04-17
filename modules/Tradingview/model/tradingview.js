@@ -55,7 +55,14 @@ const tradingviewSchema = new Schema({
         type: Date,
         required: true,
         default: Date.now
-    }
+    },
+    orders: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Order',
+            required: false
+        }
+    ]
 });
 
 const tradingviewModel = conn.model('Tradingview', tradingviewSchema);
