@@ -2,7 +2,7 @@
 const Order = require('../model/order');
 
 
-const saveExecutedOrder = async (order, user) => {
+const saveExecutedOrder = async (order, user, signal) => {
     try {
         const saveUserOrder = new Order({
             info: order.info,
@@ -29,7 +29,8 @@ const saveExecutedOrder = async (order, user) => {
             trades: order.trades,
             fees: order.fees,
             stopPrice: order.stopPrice,
-            user: user.userId
+            user: user.userId,
+            signal: signal._id
         });
         return await saveUserOrder.save();
     } catch (error) {
@@ -40,7 +41,15 @@ const saveExecutedOrder = async (order, user) => {
 
 const fetchUserOrders = async (userId) => {
     try {
-        const userOrders = await Order.find({ user: userId }).populate('user signal');
+        const userOrders = await Order.find({ user: userId })
+        .populate({
+            path: 'signal',
+            select: 'chartTimeframe strategyName pair side buy entry signalTradeType signalTradeDate'
+        })
+        .populate({
+            path: 'user',
+            select: 'username'
+        });
         return userOrders;
     } catch (error) {
         console.error({ error });

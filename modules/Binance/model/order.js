@@ -106,6 +106,11 @@ const binanceOrderSchema = new Schema({
         ref: 'User',
         required: true
     },
+    signal: {
+        type: Schema.Types.ObjectId,
+        ref: 'Tradingview',
+        required: true
+    },
     createdAt: {
         type: Date,
         required: true,
