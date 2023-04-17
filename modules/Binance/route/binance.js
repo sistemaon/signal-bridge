@@ -9,4 +9,6 @@ router.post('/add/order-signal-indicator', binance.createOrderSignalIndicator);
 
 router.post('/add/markets', binanceMarket.fetchAndSaveMarkets);
 
+router.post('/user/:userId/orders', binance.fetchUserBinanceOrders);
+
 module.exports = router;
