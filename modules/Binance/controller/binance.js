@@ -8,7 +8,8 @@ const Tradingview = require('../../Tradingview/model/tradingview');
 // const { createIndicatorSignal } = require('../../Tradingview/controller/tradingview');
 const { saveExecutedUserOrder, fetchUserOrders } = require('./order');
 
-const prepareRequestsBinanceExchange = async (users) => {
+const prepareRequestsBinanceExchange = async (users, symbol) => {
+    console.log("🚀 ~ file: binance.js:12 ~ prepareRequestsBinanceExchange ~ symbol:", symbol)
     try {
         const promises = users.map(async user => {
             const defaultOptions = {
@@ -24,6 +25,8 @@ const prepareRequestsBinanceExchange = async (users) => {
                 options: defaultOptions
             });
             binance.userBotDb = { userId: user._id, username: user.username };
+            await binance.setLeverage(process.env.LEVERAGE_OPTION_BINANCE, symbol);
+            await binance.setMarginMode(process.env.MARGIN_MODE_OPTION_BINANCE, symbol);
             return binance;
         });
         const responses = await Promise.all(promises);
@@ -37,21 +40,15 @@ const prepareRequestsBinanceExchange = async (users) => {
 const executeBinanceOrder = async (symbol, type, side, amount) => {
     try {
         const users = await User.find();
-        const exchanges = await prepareRequestsBinanceExchange(users);
+        const exchanges = await prepareRequestsBinanceExchange(users, symbol);
         const orders = await Promise.all(
             exchanges.map(async (exchange) => {
 
                 const userLastPositionSymbol = await exchange.fetchAccountPositions([symbol]);
                 const positionAmount = Math.abs(Number(userLastPositionSymbol[0].info['positionAmt']));
-                const leverage = 3;
-                const marginType = 'isolated'; // isolated or cross
-                const params = {
-                    leverage: leverage,
-                    type: marginType
-                  };
 
                 if (positionAmount === 0) {
-                    const order = await exchange.createOrder(symbol, type, side, amount, undefined, params);
+                    const order = await exchange.createOrder(symbol, type, side, amount);
                     console.log("🚀 ~ file: binance.js:49 ~ exchanges.map ~ order:", order)
                     order.user = exchange.userBotDb;
                     return order;
@@ -66,13 +63,13 @@ const executeBinanceOrder = async (symbol, type, side, amount) => {
                     return `Short/Sell position on ${symbol} already exists.`;
                 }
                 if (positionSide === 'long' && side === 'sell') {
-                    const order = await exchange.createOrder(symbol, type, side, positionAmount, undefined, params);
+                    const order = await exchange.createOrder(symbol, type, side, positionAmount);
                     console.log("🚀 ~ file: binance.js:64 ~ exchanges.map ~ order:", order)
                     order.user = exchange.userBotDb;
                     return order;
                 }
                 if (positionSide === 'short' && side === 'buy') {
-                    const order = await exchange.createOrder(symbol, type, side, positionAmount, undefined, params);
+                    const order = await exchange.createOrder(symbol, type, side, positionAmount);
                     console.log("🚀 ~ file: binance.js:71 ~ exchanges.map ~ order:", order)
                     order.user = exchange.userBotDb;
                     return order;
@@ -85,34 +82,6 @@ const executeBinanceOrder = async (symbol, type, side, amount) => {
         return error;
     }
 };
-
-// const verifyToOpenOrders = exchanges.map(async (exchange) => {
-//     const user = exchange.userBotDb;
-//     const balance = await exchange.fetchBalance();
-//     const freeBalance = balance.free.USDT;
-//     const percentageToOpenOrder = 0.03;
-//     const balanceToOpenOrder = Math.trunc(freeBalance * percentageToOpenOrder);
-
-//     if (balanceToOpenOrder < minNotional) {
-//         console.error(`Insufficient balance for user with API key ${exchange.apiKey}`);
-//         return null;
-//     }
-
-//     const amountBalanceToOpenOrder = balanceToOpenOrder / entry;
-//     const factor = 10 ** decimalPlaces;
-//     const amountToOpenOrder = 0.003 // Math.trunc(amountBalanceToOpenOrder * factor) / factor;
-
-//     // NOTE: DONE CREATE AND SAVE ORDER
-//     try {
-//         const createMarketOrder = await executeBinanceOrder(pair, 'market', side, amountToOpenOrder);
-//         console.log("🚀 ~ file: binance.js:168 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder);
-//         return createMarketOrder;
-//     } catch (error) {
-//         console.error(error);
-//         return null;
-//     }
-//     // NOTE: DONE CREATE AND SAVE ORDER
-// });
 
 
 createOrderSignalIndicator = async (req, res, next) => {
@@ -172,7 +141,8 @@ createOrderSignalIndicator = async (req, res, next) => {
             }
             return orders;
         };
-        const exchanges = await prepareRequestsBinanceExchange(users);
+
+        const exchanges = await prepareRequestsBinanceExchange(users, pair);
         const orders = await verifyToOpenOrders(exchanges);
         console.log("🚀 ~ file: binance.js:172 ~ createOrderSignalIndicator= ~ orders:", orders)
         return res.status(201).json({ orders: orders });
@@ -236,3 +206,32 @@ const binanceController = {
 };
 
 module.exports = binanceController;
+
+
+// const verifyToOpenOrders = exchanges.map(async (exchange) => {
+//     const user = exchange.userBotDb;
+//     const balance = await exchange.fetchBalance();
+//     const freeBalance = balance.free.USDT;
+//     const percentageToOpenOrder = 0.03;
+//     const balanceToOpenOrder = Math.trunc(freeBalance * percentageToOpenOrder);
+
+//     if (balanceToOpenOrder < minNotional) {
+//         console.error(`Insufficient balance for user with API key ${exchange.apiKey}`);
+//         return null;
+//     }
+
+//     const amountBalanceToOpenOrder = balanceToOpenOrder / entry;
+//     const factor = 10 ** decimalPlaces;
+//     const amountToOpenOrder = 0.003 // Math.trunc(amountBalanceToOpenOrder * factor) / factor;
+
+//     // NOTE: DONE CREATE AND SAVE ORDER
+//     try {
+//         const createMarketOrder = await executeBinanceOrder(pair, 'market', side, amountToOpenOrder);
+//         console.log("🚀 ~ file: binance.js:168 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder);
+//         return createMarketOrder;
+//     } catch (error) {
+//         console.error(error);
+//         return null;
+//     }
+//     // NOTE: DONE CREATE AND SAVE ORDER
+// });
