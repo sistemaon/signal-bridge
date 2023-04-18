@@ -2,7 +2,7 @@
 const Order = require('../model/order');
 
 
-const saveExecutedOrder = async (order, user, signal) => {
+const saveExecutedUserOrder = async (order, user, signal) => {
     try {
         const saveUserOrder = new Order({
             info: order.info,
@@ -58,7 +58,7 @@ const fetchUserOrders = async (userId) => {
 };
 
 const orderController = {
-    saveExecutedOrder,
+    saveExecutedUserOrder,
     fetchUserOrders
 };
 
