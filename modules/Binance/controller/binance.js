@@ -139,18 +139,15 @@ createOrderSignalIndicator = async (req, res, next) => {
                     orders.push(null);
                 }
             }
+            console.log("🚀 ~ file: binance.js:144 ~ verifyToOpenOrders ~ orders:", orders)
             return orders;
         };
 
         const exchanges = await prepareRequestsBinanceExchange(users, pair);
         const orders = await verifyToOpenOrders(exchanges);
-        console.log("🚀 ~ file: binance.js:172 ~ createOrderSignalIndicator= ~ orders:", orders)
-        return res.status(201).json({ orders: orders });
-
-        // const orders = await Promise.all(verifyToOpenOrders);
-
-        // TODO:
-        // TO RELATION SIGNAL TO USER ORDER IF POSITION IS OPENED
+        console.log("🚀 ~ file: binance.js:147 ~ createOrderSignalIndicator= ~ orders:", orders)
+        console.log("🚀 ~ file: binance.js:147 ~ createOrderSignalIndicator= ~ orders:", orders[0])
+        
         let usersOrdersIds = [];
         const signal = new Tradingview({
             strategyName: strategyName,
@@ -160,9 +157,9 @@ createOrderSignalIndicator = async (req, res, next) => {
             entry: entry,
             signalTradeType: signalTradeType
         });
-        if (orders[0]) {
-            for (let i = 0; i < orders[0].length; i++) {
-                const order = orders[0][i];
+        if (orders) {
+            for (let i = 0; i < orders.length; i++) {
+                const order = orders[i];
                 console.log("🚀 ~ file: binance.js:164 ~ createOrderSignalIndicator= ~ order:", order)
                 if (order.info && order.id && order.user && order.user.userId) {
                     const saveUserOder = await saveExecutedUserOrder(order, order.user, signal);
@@ -175,8 +172,8 @@ createOrderSignalIndicator = async (req, res, next) => {
         signal.orders = usersOrdersIds;
         const savedSignal = await signal.save();
         console.log("🚀 ~ file: binance.js:176 ~ createOrderSignalIndicator= ~ savedSignal:", savedSignal)
-
-        return res.status(201).json({ orders: orders[0], savedSignal: savedSignal });
+        
+        return res.status(201).json({ orders: orders, savedSignal: savedSignal });
 
     } catch (error) {
         console.error(error);
@@ -206,32 +203,3 @@ const binanceController = {
 };
 
 module.exports = binanceController;
-
-
-// const verifyToOpenOrders = exchanges.map(async (exchange) => {
-//     const user = exchange.userBotDb;
-//     const balance = await exchange.fetchBalance();
-//     const freeBalance = balance.free.USDT;
-//     const percentageToOpenOrder = 0.03;
-//     const balanceToOpenOrder = Math.trunc(freeBalance * percentageToOpenOrder);
-
-//     if (balanceToOpenOrder < minNotional) {
-//         console.error(`Insufficient balance for user with API key ${exchange.apiKey}`);
-//         return null;
-//     }
-
-//     const amountBalanceToOpenOrder = balanceToOpenOrder / entry;
-//     const factor = 10 ** decimalPlaces;
-//     const amountToOpenOrder = 0.003 // Math.trunc(amountBalanceToOpenOrder * factor) / factor;
-
-//     // NOTE: DONE CREATE AND SAVE ORDER
-//     try {
-//         const createMarketOrder = await executeBinanceOrder(pair, 'market', side, amountToOpenOrder);
-//         console.log("🚀 ~ file: binance.js:168 ~ verifyToOpenOrders ~ createMarketOrder:", createMarketOrder);
-//         return createMarketOrder;
-//     } catch (error) {
-//         console.error(error);
-//         return null;
-//     }
-//     // NOTE: DONE CREATE AND SAVE ORDER
-// });
