@@ -103,11 +103,6 @@ createOrderSignalIndicator = async (req, res, next) => {
             return res.status(400).json({ message: `Market symbol params needed is not found.` });
         }
 
-        // TODO: Check if the user has enough balance to open the order minimum notional value
-        // minNotional / current price = amount in coins (to open order) --
-        // amount in coins * current price = amount in USDT (to open order) --
-        // TODO: Check if the user has enough balance to open the order minimum notional value
-
         // Get the minimum notional value
         const minNotional = marketSymbol.limits.cost.min;
         const decimalPlaces = marketSymbol.precision.amount;
