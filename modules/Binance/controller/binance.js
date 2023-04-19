@@ -93,9 +93,12 @@ createOrderSignalIndicator = async (req, res, next) => {
             pairReplaceCache[pair] = pair.replace('/', '');
         }
 
+        console.log("🚀 ~ file: binance.js:97 ~ createOrderSignalIndicator= ~ pairReplaceCache[pair]:", pairReplaceCache[pair])
         const marketSymbol = await Market.findOne({ id: pairReplaceCache[pair] });
         console.log("🚀 ~ file: binance.js:97 ~ createOrderSignalIndicator= ~ marketSymbol:", marketSymbol)
-        if (!marketSymbol || !marketSymbol.limits.cost.min || !marketSymbol.precision.amount) {
+        console.log("🚀 ~ file: binance.js:82 ~ pairReplaceCache:", pairReplaceCache)
+
+        if (!marketSymbol) { // || !marketSymbol.limits.cost.min || !marketSymbol.precision.amount
             console.error(`Market symbol ${pair} not found.`);
             return res.status(400).json({ message: `Market symbol params needed is not found.` });
         }
@@ -113,7 +116,7 @@ createOrderSignalIndicator = async (req, res, next) => {
         const minOrderSize = Number(lotSize.minQty);
 
         const minQuantity = minNotional / entry;
-        const minQuantityMax = Math.max(minQuantity, minOrderSize);
+        // const minQuantityMax = Math.max(minQuantity, minOrderSize);
         const minQuantityCeil = Math.ceil(minQuantity / minOrderSize) * minOrderSize;
         const minQuantityEntry = minQuantityCeil.toFixed(decimalPlaces);
 
@@ -128,15 +131,15 @@ createOrderSignalIndicator = async (req, res, next) => {
                     console.log("🚀 ~ file: binance.js:119 ~ verifyToOpenOrders ~ freeBalance:", freeBalance)
                     const percentageToOpenOrder = 0.03;
                     const balanceToOpenOrder = Math.trunc(freeBalance * percentageToOpenOrder);
-                    // if (balanceToOpenOrder < minNotional) {
-                    //     console.error(`Insufficient balance for user: ${exchange.userBotDb}`);
-                    //     orders.push(null);
-                    //     continue;
-                    // }
+                    if (balanceToOpenOrder < minQuantityEntry) {
+                        console.error(`Insufficient balance for user: ${exchange.userBotDb}`);
+                        // orders.push(null);
+                        return;
+                    }
                     const amountBalanceToOpenOrder = balanceToOpenOrder / entry;
                     const factor = 10 ** decimalPlaces;
-                    const amountToOpenOrder = 0.003 //Math.floor(amountBalanceToOpenOrder * factor) / factor;
-                    return { amountToOpenOrder, balanceToOpenOrder, freeBalance, percentageToOpenOrder }
+                    const amountToOpenOrder = Math.floor(amountBalanceToOpenOrder * factor) / factor;
+                    return { amountToOpenOrder, balanceToOpenOrder, freeBalance }
                     try {
                         const createMarketOrder = await executeBinanceOrder(exchange, pair, 'market', side, amountToOpenOrder);
                         if (createMarketOrder && createMarketOrder.info && createMarketOrder.user && createMarketOrder.user.userId) {
@@ -156,7 +159,7 @@ createOrderSignalIndicator = async (req, res, next) => {
         const users = await User.find();
         const exchanges = await prepareRequestsBinanceExchange(users, pair);
         const orders = await verifyToOpenOrders(exchanges);
-        return res.status(201).json({ minNotional, decimalPlaces, minOrderSize, lotSize, minQuantity, minQuantityMax, minQuantityCeil, minQuantityEntry, orders });
+        return res.status(201).json({ minNotional, decimalPlaces, minOrderSize, lotSize, minQuantity, minQuantityCeil, minQuantityEntry, orders });
         console.log("🚀 ~ file: binance.js:149 ~ createOrderSignalIndicator= ~ orders:", orders)
         console.log("🚀 ~ file: binance.js:150 ~ createOrderSignalIndicator= ~ orders:", orders[0])
 
