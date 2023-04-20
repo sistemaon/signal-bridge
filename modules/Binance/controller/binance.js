@@ -258,8 +258,7 @@ createOrderSignalIndicator = async (req, res, next) => {
         const usersOrdersIds = [];
 
         if (orders) {
-            for (let i = 0; i < orders.length; i++) {
-                const order = orders[i];
+            for (const order of orders) {
                 try {
                     if (!order) {
                         continue;
