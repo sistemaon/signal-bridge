@@ -37,14 +37,47 @@ const prepareRequestsBinanceExchange = async (users, symbol) => {
 
 const executeBinanceOrder = async (exchange, symbol, type, side, amount) => {
     try {
+        if (!exchange || !symbol || !type || !side || !amount) {
+            console.error('Missing parameters.');
+            return 'Missing parameters.';
+        }
+        if (typeof exchange !== 'object' || Array.isArray(exchange)) {
+            console.error('Invalid exchange object.');
+            return 'Invalid exchange object.';
+        }
+        if (typeof symbol !== 'string') {
+            console.error('Invalid parameter: symbol must be a string.');
+            return 'Invalid parameter: symbol must be a string.';
+        }
+        if (typeof type !== 'string') {
+            console.error('Invalid parameter: type must be a string.');
+            return 'Invalid parameter: type must be a string.';
+        }
+        if (typeof side !== 'string') {
+            console.error('Invalid parameter: side must be a string.');
+            return 'Invalid parameter: side must be a string.';
+        }
+        if (typeof amount !== 'number' || isNaN(amount)) {
+            console.error('Invalid parameter: amount must be a number.');
+            return 'Invalid parameter: amount must be a number.';
+        }
+
         const userLastPositionSymbol = await exchange.fetchAccountPositions([symbol]);
+        if (!userLastPositionSymbol || !Array.isArray(userLastPositionSymbol) || userLastPositionSymbol.length === 0) {
+            console.error('Unable to fetch user last position account or position account not found.');
+            return 'Unable to fetch user last position account or position account not found.';
+        }
+
         const positionAmount = Math.abs(Number(userLastPositionSymbol[0].info['positionAmt']));
+        if (isNaN(positionAmount)) {
+            console.error(`Invalid position amount: ${positionAmount}`);
+            return `Invalid position amount: ${positionAmount}`;
+        }
 
         if (positionAmount === 0) {
             const order = await exchange.createOrder(symbol, type, side, amount);
             console.log("🚀 ~ file: binance.js:49 ~ exchanges.map ~ order:", order)
             order.user = exchange.userBotDb;
-            // userOrders.push(order);
             return order;
         }
 
@@ -52,26 +85,25 @@ const executeBinanceOrder = async (exchange, symbol, type, side, amount) => {
 
         if (side === 'buy' && positionSide === 'long') {
             return `Long/Buy position on ${symbol} already exists.`;
-            // userOrders.push(`Long/Buy position on ${symbol} already exists.`);
         }
         if (side === 'sell' && positionSide === 'short') {
             return `Short/Sell position on ${symbol} already exists.`;
-            // userOrders.push(`Short/Sell position on ${symbol} already exists.`);
         }
         if (positionSide === 'long' && side === 'sell') {
             const order = await exchange.createOrder(symbol, type, side, positionAmount);
             console.log("🚀 ~ file: binance.js:64 ~ exchanges.map ~ order:", order)
             order.user = exchange.userBotDb;
-            // userOrders.push(order);
             return order;
         }
         if (positionSide === 'short' && side === 'buy') {
             const order = await exchange.createOrder(symbol, type, side, positionAmount);
             console.log("🚀 ~ file: binance.js:71 ~ exchanges.map ~ order:", order)
             order.user = exchange.userBotDb;
-            // userOrders.push(order);
             return order;
         }
+
+        console.error(`Unable to execute order for exchange: ${exchange.userBotDb.username}`);
+        return `Unable to execute order for exchange: ${exchange.userBotDb.username}`;
     } catch (error) {
         console.error(error);
         return error;
@@ -93,17 +125,16 @@ createOrderSignalIndicator = async (req, res, next) => {
             pairReplaceCache[pair] = pair.replace('/', '');
         }
 
-        console.log("🚀 ~ file: binance.js:97 ~ createOrderSignalIndicator= ~ pairReplaceCache[pair]:", pairReplaceCache[pair])
+        console.log("🚀 ~ file: binance.js:97 ~ createOrderSignalIndicator= ~ pairReplaceCache[pair]:", { pairReplaceCachePair: pairReplaceCache[pair] })
         const marketSymbol = await Market.findOne({ id: pairReplaceCache[pair] });
         console.log("🚀 ~ file: binance.js:97 ~ createOrderSignalIndicator= ~ marketSymbol:", marketSymbol)
         console.log("🚀 ~ file: binance.js:82 ~ pairReplaceCache:", pairReplaceCache)
 
-        if (!marketSymbol) { // || !marketSymbol.limits.cost.min || !marketSymbol.precision.amount
+        if (!marketSymbol) {
             console.error(`Market symbol ${pair} not found.`);
             return res.status(400).json({ message: `Market symbol params needed is not found.` });
         }
 
-        // Get the minimum notional value
         const minNotional = marketSymbol.limits.cost.min;
         const decimalPlaces = marketSymbol.precision.amount;
 
@@ -131,9 +162,9 @@ createOrderSignalIndicator = async (req, res, next) => {
                         console.error(`Insufficient balance for user: ${exchange.userBotDb.username}. Minimum quantity required to open order is: ${minQuantityInCoinsEntry}. User balance quantity is: ${amountBalanceQuantityInCoinsEntry}.`);
                         return;
                     }
-                    // return { freeBalance, freeBalancePercentageToOpenOrderInFiat, amountBalanceQuantityInCoins, amountBalanceQuantityInCoins, amountBalanceQuantityInCoinsEntry }
                     try {
-                        const createMarketOrder = await executeBinanceOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoins);
+                        const createMarketOrder = await executeBinanceOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry);
+                        return
                         if (createMarketOrder && createMarketOrder.info && createMarketOrder.user && createMarketOrder.user.userId) {
                             return createMarketOrder;
                         } else {
@@ -153,8 +184,11 @@ createOrderSignalIndicator = async (req, res, next) => {
         const orders = await verifyToOpenOrders(exchanges);
         console.log("🚀 ~ file: binance.js:149 ~ createOrderSignalIndicator= ~ orders:", orders)
         console.log("🚀 ~ file: binance.js:150 ~ createOrderSignalIndicator= ~ orders:", orders[0])
+        return res.status(201).json({ orders: orders });
 
-        const usersOrdersIds = [];
+
+
+
         const signal = new Tradingview({
             strategyName: strategyName,
             pair: pair,
@@ -163,11 +197,15 @@ createOrderSignalIndicator = async (req, res, next) => {
             entry: entry,
             signalTradeType: signalTradeType
         });
+        const usersOrdersIds = [];
         if (orders) {
             for (let i = 0; i < orders.length; i++) {
                 const order = orders[i];
                 console.log("🚀 ~ file: binance.js:164 ~ createOrderSignalIndicator= ~ order:", order)
                 try {
+                    if (!order) {
+                        continue;
+                    }
                     if (order.info && order.id && order.user && order.user.userId) {
                         const saveUserOder = await saveExecutedUserOrder(order, order.user, signal);
                         console.log("🚀 ~ file: binance.js:167 ~ createOrderSignalIndicator= ~ saveUserOder:", saveUserOder)
