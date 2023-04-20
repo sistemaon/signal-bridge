@@ -183,6 +183,24 @@ createOrderSignalIndicator = async (req, res, next) => {
             console.error('Missing parameters.');
             return res.status(400).json({ message: 'Missing parameters.' });
         }
+        if (typeof strategyName !== 'string' || typeof pair !== 'string' || typeof chartTimeframe !== 'object' || typeof chartTimeframe.chronoAmount !== 'string' || typeof chartTimeframe.chronoUnit !== 'string' || typeof side !== 'string' || typeof entry !== 'number' || typeof signalTradeType !== 'string') {
+            console.error('Invalid parameters.');
+            return res.status(400).json({ message: 'Invalid parameters.' });
+        }
+        console.log(typeof chartTimeframe.chronoAmount);
+        console.log(typeof chartTimeframe.chronoUnit);
+        if (chartTimeframe.chronoUnit !== 'SECOND' && chartTimeframe.chronoUnit !== 'MINUTE' && chartTimeframe.chronoUnit !== 'HOUR' && chartTimeframe.chronoUnit !== 'DAY' && chartTimeframe.chronoUnit !== 'WEEK' && chartTimeframe.chronoUnit !== 'MONTH' && chartTimeframe.chronoUnit !== 'YEAR') {
+            console.error(`Invalid parameter for chartTimeframe.chronoUnit: ${chartTimeframe.chronoUnit}.`);
+            return res.status(400).json({ message: `Invalid parameter for chartTimeframe.chronoUnit: ${chartTimeframe.chronoUnit}.` });
+        }
+        if (side !== 'buy' && side !== 'sell' && side !== 'long' && side !== 'short' && side !== 'both') {
+            console.error(`Invalid parameter for side: ${side}.`);
+            return res.status(400).json({ message: `Invalid parameter for side: ${side}.` });
+        }
+        if (signalTradeType !== 'INDICATOR' && signalTradeType !== 'TARGET') {
+            console.error(`Invalid parameter for signalTradeType: ${signalTradeType}.`);
+            return res.status(400).json({ message: `Invalid parameter for signalTradeType: ${signalTradeType}.` });
+        }
 
         if (!pairReplaceCache[pair]) {
             pairReplaceCache[pair] = pair.replace('/', '');
