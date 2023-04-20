@@ -43,23 +43,23 @@ const executeBinanceOrder = async (exchange, symbol, type, side, amount) => {
         }
         if (typeof exchange !== 'object' || Array.isArray(exchange)) {
             console.error('Invalid exchange object.');
-            return 'Invalid exchange object.';
+            return 'Invalid exchange object type.';
         }
         if (typeof symbol !== 'string') {
-            console.error('Invalid parameter: symbol must be a string.');
-            return 'Invalid parameter: symbol must be a string.';
+            console.error('Invalid parameter type: symbol must be a string.');
+            return 'Invalid parameter type: symbol must be a string.';
         }
         if (typeof type !== 'string' || (type !== 'market')) {
-            console.error('Invalid parameter: type must be a string.');
-            return 'Invalid parameter: type must be a string.';
+            console.error('Invalid parameter type: type must be a string.');
+            return 'Invalid parameter type: type must be a string.';
         }
         if (typeof side !== 'string' || (side !== 'buy' && side !== 'sell')) {
-            console.error('Invalid parameter: side must be a string.');
-            return 'Invalid parameter: side must be a string.';
+            console.error('Invalid parameter type: side must be a string.');
+            return 'Invalid parameter type: side must be a string.';
         }
         if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) {
-            console.error('Invalid parameter: amount must be a number.');
-            return 'Invalid parameter: amount must be a number.';
+            console.error('Invalid parameter type: amount must be a number.');
+            return 'Invalid parameter type: amount must be a number.';
         }
 
         const userLastPositionSymbol = await exchange.fetchAccountPositions([symbol]);
@@ -75,9 +75,18 @@ const executeBinanceOrder = async (exchange, symbol, type, side, amount) => {
         }
 
         if (positionAmount === 0) {
-            const order = await exchange.createOrder(symbol, type, side, amount);
-            order.user = exchange.userBotDb;
-            return order;
+            try {
+                const order = await exchange.createOrder(symbol, type, side, amount);
+                if (!order) {
+                    console.error('Unable to create order.');
+                    return 'Unable to create order.';
+                }
+                order.user = exchange.userBotDb;
+                return order;
+            } catch (error) {
+                console.error(`Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`);
+                return `Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`;
+            }
         }
 
         const positionSide = userLastPositionSymbol[0]['side'];
@@ -93,14 +102,32 @@ const executeBinanceOrder = async (exchange, symbol, type, side, amount) => {
             return `Short/Sell position on ${symbol} already exists.`;
         }
         if (positionSide === 'long' && side === 'sell') {
-            const order = await exchange.createOrder(symbol, type, side, positionAmount);
-            order.user = exchange.userBotDb;
-            return order;
+            try {
+                const order = await exchange.createOrder(symbol, type, side, positionAmount);
+                if (!order) {
+                    console.error('Unable to create order.');
+                    return 'Unable to create order.';
+                }
+                order.user = exchange.userBotDb;
+                return order;
+            } catch (error) {
+                console.error(`Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`);
+                return `Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`;
+            }
         }
         if (positionSide === 'short' && side === 'buy') {
-            const order = await exchange.createOrder(symbol, type, side, positionAmount);
-            order.user = exchange.userBotDb;
-            return order;
+            try {
+                const order = await exchange.createOrder(symbol, type, side, positionAmount);
+                if (!order) {
+                    console.error('Unable to create order.');
+                    return 'Unable to create order.';
+                }
+                order.user = exchange.userBotDb;
+                return order;
+            } catch (error) {
+                console.error(`Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`);
+                return `Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`;
+            }
         }
 
         console.error(`Unable to execute order for exchange: ${exchange.userBotDb.username}`);
@@ -184,11 +211,9 @@ createOrderSignalIndicator = async (req, res, next) => {
             return res.status(400).json({ message: 'Missing parameters.' });
         }
         if (typeof strategyName !== 'string' || typeof pair !== 'string' || typeof chartTimeframe !== 'object' || typeof chartTimeframe.chronoAmount !== 'string' || typeof chartTimeframe.chronoUnit !== 'string' || typeof side !== 'string' || typeof entry !== 'number' || typeof signalTradeType !== 'string') {
-            console.error('Invalid parameters.');
-            return res.status(400).json({ message: 'Invalid parameters.' });
+            console.error('Invalid parameters types.');
+            return res.status(400).json({ message: 'Invalid parameters types.' });
         }
-        console.log(typeof chartTimeframe.chronoAmount);
-        console.log(typeof chartTimeframe.chronoUnit);
         if (chartTimeframe.chronoUnit !== 'SECOND' && chartTimeframe.chronoUnit !== 'MINUTE' && chartTimeframe.chronoUnit !== 'HOUR' && chartTimeframe.chronoUnit !== 'DAY' && chartTimeframe.chronoUnit !== 'WEEK' && chartTimeframe.chronoUnit !== 'MONTH' && chartTimeframe.chronoUnit !== 'YEAR') {
             console.error(`Invalid parameter for chartTimeframe.chronoUnit: ${chartTimeframe.chronoUnit}.`);
             return res.status(400).json({ message: `Invalid parameter for chartTimeframe.chronoUnit: ${chartTimeframe.chronoUnit}.` });
