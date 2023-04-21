@@ -95,15 +95,17 @@ const executeBinanceOrder = async (exchange, symbol, type, side, amount) => {
             return `Invalid position side: ${positionSide}`;
         }
 
-        if (side === 'buy' && positionSide === 'long') {
+        if (positionSide === 'long' && side === 'buy') {
             return `Long/Buy position on ${symbol} already exists.`;
         }
-        if (side === 'sell' && positionSide === 'short') {
+        if (positionSide === 'short' && side === 'sell') {
             return `Short/Sell position on ${symbol} already exists.`;
         }
+    
         if (positionSide === 'long' && side === 'sell') {
             try {
-                const order = await exchange.createOrder(symbol, type, side, positionAmount);
+                const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
+                const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
                 if (!order) {
                     console.error('Unable to create order.');
                     return 'Unable to create order.';
@@ -115,9 +117,11 @@ const executeBinanceOrder = async (exchange, symbol, type, side, amount) => {
                 return `Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`;
             }
         }
+    
         if (positionSide === 'short' && side === 'buy') {
             try {
-                const order = await exchange.createOrder(symbol, type, side, positionAmount);
+                const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
+                const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
                 if (!order) {
                     console.error('Unable to create order.');
                     return 'Unable to create order.';
