@@ -78,14 +78,15 @@ const executeBinanceOrder = async (exchange, symbol, type, side, amount) => {
             try {
                 const order = await exchange.createOrder(symbol, type, side, amount);
                 if (!order) {
-                    console.error('Unable to create order.');
-                    return 'Unable to create order.';
+                    const message = `Unable to create order for user: ${exchange.userBotDb.username}.`;
+                    console.error(message);
+                    return message;
                 }
                 order.user = exchange.userBotDb;
                 return order;
             } catch (error) {
-                console.error(`Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`);
-                return `Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`;
+                console.error(`Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`);
+                return `Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`;
             }
         }
 
@@ -107,14 +108,15 @@ const executeBinanceOrder = async (exchange, symbol, type, side, amount) => {
                 const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
                 const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
                 if (!order) {
-                    console.error('Unable to create order.');
-                    return 'Unable to create order.';
+                    const message = `Unable to create order for user: ${exchange.userBotDb.username}.`;
+                    console.error(message);
+                    return message;
                 }
                 order.user = exchange.userBotDb;
                 return order;
             } catch (error) {
-                console.error(`Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`);
-                return `Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`;
+                console.error(`Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`);
+                return `Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`;
             }
         }
     
@@ -123,19 +125,20 @@ const executeBinanceOrder = async (exchange, symbol, type, side, amount) => {
                 const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
                 const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
                 if (!order) {
-                    console.error('Unable to create order.');
-                    return 'Unable to create order.';
+                    const message = `Unable to create order for user: ${exchange.userBotDb.username}.`;
+                    console.error(message);
+                    return message;
                 }
                 order.user = exchange.userBotDb;
                 return order;
             } catch (error) {
-                console.error(`Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`);
-                return `Unable to create order for exchange ${exchange.userBotDb.username}: ${error.message}`;
+                console.error(`Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`);
+                return `Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`;
             }
         }
 
-        console.error(`Unable to execute order for exchange: ${exchange.userBotDb.username}`);
-        return `Unable to execute order for exchange: ${exchange.userBotDb.username}`;
+        console.error(`Unable to execute order for user: ${exchange.userBotDb.username}`);
+        return `Unable to execute order for user: ${exchange.userBotDb.username}`;
     } catch (error) {
         console.error(error);
         return error;
