@@ -182,7 +182,7 @@ const verifyToOpenOrders = async (exchanges, entry, decimalPlaces, minQuantityIn
             }
 
             const freeBalance = balance.free.USDT;
-            const percentageToOpenOrder = 0.03;
+            const percentageToOpenOrder = 0.05;
             const freeBalancePercentageToOpenOrderInFiat = Math.trunc(freeBalance * percentageToOpenOrder);
             const amountBalanceQuantityInCoins = freeBalancePercentageToOpenOrderInFiat / entry;
             const factor = 10 ** decimalPlaces;
@@ -212,6 +212,25 @@ const verifyToOpenOrders = async (exchanges, entry, decimalPlaces, minQuantityIn
 createOrderSignalIndicator = async (req, res, next) => {
     try {
         const { strategyName, pair, chartTimeframe, side, entry, signalTradeType } = req.body;
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", signalTradeType)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", entry)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", side)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe.chronoAmount)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe.chronoUnit)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ pair:", pair)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ strategyName:", strategyName)
+
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", typeof signalTradeType)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", typeof entry)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", typeof side)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe.chronoAmount)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe.chronoUnit)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ pair:", typeof pair)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ strategyName:", typeof strategyName)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", req.body);
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", { reqbody: req.body });
 
         if (!strategyName || !pair || !chartTimeframe || !chartTimeframe.chronoAmount || !chartTimeframe.chronoUnit || !side || !entry || !signalTradeType) {
             console.error('Missing parameters.');
@@ -291,6 +310,34 @@ createOrderSignalIndicator = async (req, res, next) => {
     }
 };
 
+const createOrderTargetIndicator = async (req, res, next) => {
+    try {
+        const { strategyName, pair, chartTimeframe, side, entry, signalTradeType } = req.body;
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", signalTradeType)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", entry)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", side)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe.chronoAmount)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe.chronoUnit)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ pair:", pair)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ strategyName:", strategyName)
+
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", typeof signalTradeType)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", typeof entry)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", typeof side)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe.chronoAmount)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe.chronoUnit)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ pair:", typeof pair)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ strategyName:", typeof strategyName)
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", req.body);
+        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", { reqbody: req.body });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error });
+    }
+};
+
 const fetchUserBinanceOrders = async (req, res, next) => {
     try {
         const userId = req.params.userId;
@@ -309,6 +356,7 @@ const fetchUserBinanceOrders = async (req, res, next) => {
 
 const binanceController = {
     createOrderSignalIndicator,
+    createOrderTargetIndicator,
     fetchUserBinanceOrders
 };
 
