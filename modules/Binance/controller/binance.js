@@ -209,7 +209,7 @@ const verifyToOpenOrders = async (exchanges, entry, decimalPlaces, minQuantityIn
     return orders;
 };
 
-createOrderSignalIndicator = async (req, res, next) => {
+const createOrderSignalIndicator = async (req, res, next) => {
     try {
         const { strategyName, pair, chartTimeframe, side, entry, signalTradeType } = req.body;
         console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", signalTradeType)
