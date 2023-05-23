@@ -357,8 +357,9 @@ const createOrderTargetIndicator = async (req, res, next) => {
         if (!pairReplaceCache[pair]) {
             pairReplaceCache[pair] = pair.replace('/', '');
         }
+        // alert(alert_message)
 
-        
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: error });
