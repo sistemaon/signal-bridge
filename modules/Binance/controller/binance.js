@@ -357,7 +357,33 @@ const createOrderTargetIndicator = async (req, res, next) => {
         if (!pairReplaceCache[pair]) {
             pairReplaceCache[pair] = pair.replace('/', '');
         }
+        console.log("🚀 ~ file: binance.js:359 ~ createOrderTargetIndicator ~ pairReplaceCache[pair]:", pairReplaceCache[pair])
+        const marketSymbol = await Market.findOne({ id: pairReplaceCache[pair] });
+        console.log("🚀 ~ file: binance.js:361 ~ createOrderTargetIndicator ~ marketSymbol:", marketSymbol)
+        if (!marketSymbol) {
+            console.error(`Market symbol ${pair} not found.`);
+            return res.status(400).json({ message: `Market symbol params needed is not found.` });
+        }
+
+        const minNotional = marketSymbol.limits.cost.min;
+        console.log("🚀 ~ file: binance.js:368 ~ createOrderTargetIndicator ~ minNotional:", minNotional)
+        const decimalPlaces = marketSymbol.precision.amount;
+        console.log("🚀 ~ file: binance.js:370 ~ createOrderTargetIndicator ~ decimalPlaces:", decimalPlaces)
+        const lotSize = marketSymbol.info.filters.find(filter => filter.filterType === 'LOT_SIZE');
+        console.log("🚀 ~ file: binance.js:372 ~ createOrderTargetIndicator ~ lotSize:", lotSize)
+        const minOrderSize = Number(lotSize.minQty);
+        console.log("🚀 ~ file: binance.js:374 ~ createOrderTargetIndicator ~ minOrderSize:", minOrderSize)
+        const minQuantityInCoins = minNotional / entry;
+        console.log("🚀 ~ file: binance.js:376 ~ createOrderTargetIndicator ~ minQuantityInCoins:", minQuantityInCoins)
+        const minQuantityInCoinsCeil = Math.ceil(minQuantityInCoins / minOrderSize) * minOrderSize;
+        console.log("🚀 ~ file: binance.js:378 ~ createOrderTargetIndicator ~ minQuantityInCoinsCeil:", minQuantityInCoinsCeil)
+        const minQuantityInCoinsEntry = Number(minQuantityInCoinsCeil.toFixed(decimalPlaces));
+        console.log("🚀 ~ file: binance.js:380 ~ createOrderTargetIndicator ~ minQuantityInCoinsEntry:", minQuantityInCoinsEntry)
+        const users = await User.find();
+        console.log("🚀 ~ file: binance.js:382 ~ createOrderTargetIndicator ~ users:", users)
         // alert(alert_message)
+
+        return res.status(201).json({ message: 'ok' });
 
 
     } catch (error) {
