@@ -388,6 +388,12 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 // TODO:
                 // UPDATE POSITION STOP LOSS AND TAKE PROFIT
                 console.log('isPriceProtect ', isPriceProtect)
+                // const updatedOrder = await binance.editOrder(order.id, symbol, 'MARKET', order.side, order.amount, undefined, {
+                //     stopPrice: stopLossPrice,
+                //     takeProfitPrice: takeProfitPrice,
+                //   });
+
+                
                 // const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
                 // const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
                 // if (!order) {
