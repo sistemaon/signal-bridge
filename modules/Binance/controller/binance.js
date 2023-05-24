@@ -352,7 +352,7 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
             }
 
             const freeBalance = balance.free.USDT;
-            const percentageToOpenOrder = 0.05;
+            const percentageToOpenOrder = 0.01;
             const freeBalancePercentageToOpenOrderInFiat = Math.trunc(freeBalance * percentageToOpenOrder);
             const amountBalanceQuantityInCoins = freeBalancePercentageToOpenOrderInFiat / entry;
             const factor = 10 ** decimalPlaces;
@@ -461,8 +461,28 @@ const createOrderTargetIndicator = async (req, res, next) => {
             signalTradeType: signalTradeType
         });
 
-        return res.status(201).json({ message: 'ok' });
+        const usersOrdersIds = [];
+        if (orders) {
+            for (const order of orders) {
+                try {
+                    if (!order) {
+                        continue;
+                    }
+                    if (order.info && order.id && order.user && order.user.userId) {
+                        const saveUserOder = await saveExecutedUserOrder(order, order.user, signal);
+                        usersOrdersIds.push(saveUserOder._id);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    return error;
+                }
+            }
+        }
 
+        signal.orders = usersOrdersIds;
+        const savedSignal = await signal.save();
+
+        return res.status(201).json({ orders: orders, savedSignal: savedSignal });
 
     } catch (error) {
         console.error(error);
