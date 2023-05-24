@@ -315,7 +315,115 @@ const createOrderSignalIndicator = async (req, res, next) => {
 
 
 
+const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount) => {
+    try {
+        if (!exchange || !symbol || !type || !side || !amount) {
+            console.error('Missing parameters.');
+            return 'Missing parameters.';
+        }
+        if (typeof exchange !== 'object' || Array.isArray(exchange)) {
+            console.error('Invalid exchange object.');
+            return 'Invalid exchange object type.';
+        }
+        if (typeof symbol !== 'string') {
+            console.error('Invalid parameter type: symbol must be a string.');
+            return 'Invalid parameter type: symbol must be a string.';
+        }
+        if (typeof type !== 'string' || (type !== 'market')) {
+            console.error('Invalid parameter type: type must be a string.');
+            return 'Invalid parameter type: type must be a string.';
+        }
+        if (typeof side !== 'string' || (side !== 'buy' && side !== 'sell')) {
+            console.error('Invalid parameter type: side must be a string.');
+            return 'Invalid parameter type: side must be a string.';
+        }
+        if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) {
+            console.error('Invalid parameter type: amount must be a number.');
+            return 'Invalid parameter type: amount must be a number.';
+        }
 
+        const userLastPositionSymbol = await exchange.fetchAccountPositions([symbol]);
+        if (!userLastPositionSymbol || !Array.isArray(userLastPositionSymbol) || userLastPositionSymbol.length === 0) {
+            console.error('Unable to fetch user last position account or position account not found.');
+            return 'Unable to fetch user last position account or position account not found.';
+        }
+
+        const positionAmount = Math.abs(Number(userLastPositionSymbol[0].info['positionAmt']));
+        if (typeof positionAmount !== 'number' || isNaN(positionAmount) || positionAmount < 0) {
+            console.error(`Invalid position amount: ${positionAmount}`);
+            return `Invalid position amount: ${positionAmount}`;
+        }
+
+        if (positionAmount === 0) {
+            try {
+                const order = await exchange.createOrder(symbol, type, side, amount);
+                if (!order) {
+                    const message = `Unable to create order for user: ${exchange.userBotDb.username}.`;
+                    console.error(message);
+                    return message;
+                }
+                order.user = exchange.userBotDb;
+                return order;
+            } catch (error) {
+                console.error(`Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`);
+                return `Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`;
+            }
+        }
+
+        const positionSide = userLastPositionSymbol[0]['side'];
+        if (typeof positionSide !== 'string' || (positionSide !== 'long' && positionSide !== 'short')) {
+            console.error(`Invalid position side: ${positionSide}`);
+            return `Invalid position side: ${positionSide}`;
+        }
+
+        if (positionSide === 'long' && side === 'buy') {
+            return `Long/Buy position on ${symbol} already exists.`;
+        }
+        if (positionSide === 'short' && side === 'sell') {
+            return `Short/Sell position on ${symbol} already exists.`;
+        }
+    
+        if (positionSide === 'long' && side === 'sell') {
+            try {
+                const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
+                const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
+                if (!order) {
+                    const message = `Unable to create order for user: ${exchange.userBotDb.username}.`;
+                    console.error(message);
+                    return message;
+                }
+                order.user = exchange.userBotDb;
+                return order;
+            } catch (error) {
+                console.error(`Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`);
+                return `Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`;
+            }
+        }
+    
+        if (positionSide === 'short' && side === 'buy') {
+            try {
+                const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
+                const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
+                if (!order) {
+                    const message = `Unable to create order for user: ${exchange.userBotDb.username}.`;
+                    console.error(message);
+                    return message;
+                }
+                order.user = exchange.userBotDb;
+                return order;
+            } catch (error) {
+                console.error(`Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`);
+                return `Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`;
+            }
+        }
+
+        console.error(`Unable to execute order for user: ${exchange.userBotDb.username}`);
+        return `Unable to execute order for user: ${exchange.userBotDb.username}`;
+    } catch (error) {
+        console.error(error);
+        return error;
+    }
+};
 const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side) => {
     if (!exchanges || !Array.isArray(exchanges) || exchanges.length === 0) {
         console.error('Invalid exchanges parameter.');
@@ -364,7 +472,7 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
             }
 
             try {
-                const createMarketOrder = await executeBinanceOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry);
+                const createMarketOrder = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry);
                 if (createMarketOrder && createMarketOrder.info && createMarketOrder.user && createMarketOrder.user.userId) {
                     return createMarketOrder;
                 } else {
