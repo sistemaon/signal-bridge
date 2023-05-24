@@ -379,9 +379,8 @@ const createOrderTargetIndicator = async (req, res, next) => {
         console.log("🚀 ~ file: binance.js:378 ~ createOrderTargetIndicator ~ minQuantityInCoinsCeil:", minQuantityInCoinsCeil)
         const minQuantityInCoinsEntry = Number(minQuantityInCoinsCeil.toFixed(decimalPlaces));
         console.log("🚀 ~ file: binance.js:380 ~ createOrderTargetIndicator ~ minQuantityInCoinsEntry:", minQuantityInCoinsEntry)
-        const users = await User.find();
+        const users = await User.find({username: 'suun'});
         console.log("🚀 ~ file: binance.js:382 ~ createOrderTargetIndicator ~ users:", users)
-        // alert(alert_message)
 
         return res.status(201).json({ message: 'ok' });
 
