@@ -387,7 +387,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
             try {
                 // TODO:
                 // UPDATE POSITION STOP LOSS AND TAKE PROFIT
-
+                console.log('isPriceProtect ', isPriceProtect)
                 // const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
                 // const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
                 // if (!order) {
@@ -407,7 +407,8 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
             try {
                 // TODO:
                 // UPDATE POSITION STOP LOSS AND TAKE PROFIT
-                
+                console.log('isPriceProtect ', isPriceProtect)
+
                 // const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
                 // const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
                 // if (!order) {
