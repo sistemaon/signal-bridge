@@ -145,7 +145,6 @@ const executeBinanceOrder = async (exchange, symbol, type, side, amount) => {
     }
 };
 
-const pairReplaceCache = {};
 const verifyToOpenOrders = async (exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side) => {
     if (!exchanges || !Array.isArray(exchanges) || exchanges.length === 0) {
         console.error('Invalid exchanges parameter.');
@@ -209,6 +208,7 @@ const verifyToOpenOrders = async (exchanges, entry, decimalPlaces, minQuantityIn
     return orders;
 };
 
+const pairReplaceCache = {};
 const createOrderSignalIndicator = async (req, res, next) => {
     try {
         const { strategyName, pair, chartTimeframe, side, entry, signalTradeType } = req.body;
@@ -281,8 +281,8 @@ const createOrderSignalIndicator = async (req, res, next) => {
             entry: entry,
             signalTradeType: signalTradeType
         });
-        const usersOrdersIds = [];
 
+        const usersOrdersIds = [];
         if (orders) {
             for (const order of orders) {
                 try {
@@ -310,6 +310,74 @@ const createOrderSignalIndicator = async (req, res, next) => {
     }
 };
 
+
+
+
+
+
+
+const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side) => {
+    if (!exchanges || !Array.isArray(exchanges) || exchanges.length === 0) {
+        console.error('Invalid exchanges parameter.');
+        return null;
+    }
+    if (typeof entry !== 'number' || isNaN(entry) || entry <= 0) {
+        console.error('Invalid entry parameter.');
+        return null;
+    }
+    if (typeof decimalPlaces !== 'number' || isNaN(decimalPlaces) || decimalPlaces < 0) {
+        console.error('Invalid decimalPlaces parameter.');
+        return null;
+    }
+    if (typeof minQuantityInCoinsEntry !== 'number' || isNaN(minQuantityInCoinsEntry) || minQuantityInCoinsEntry < 0) {
+        console.error('Invalid minQuantityInCoinsEntry parameter.');
+        return null;
+    }
+    if (typeof pair !== 'string') {
+        console.error('Invalid pair parameter.');
+        return null;
+    }
+    if (typeof side !== 'string') {
+        console.error('Invalid side parameter.');
+        return null;
+    }
+
+    const orders = await Promise.all(
+        exchanges.map(async (exchange) => {
+            const balance = await exchange.fetchBalance();
+
+            if (!balance || typeof balance.free.USDT !== 'number' || balance.free.USDT <= 0 ) {
+                console.error(`Invalid balance for user: ${exchange.userBotDb.username}.`);
+                return null;
+            }
+
+            const freeBalance = balance.free.USDT;
+            const percentageToOpenOrder = 0.05;
+            const freeBalancePercentageToOpenOrderInFiat = Math.trunc(freeBalance * percentageToOpenOrder);
+            const amountBalanceQuantityInCoins = freeBalancePercentageToOpenOrderInFiat / entry;
+            const factor = 10 ** decimalPlaces;
+            const amountBalanceQuantityInCoinsEntry = Math.floor(amountBalanceQuantityInCoins * factor) / factor;
+
+            if (amountBalanceQuantityInCoinsEntry < minQuantityInCoinsEntry) {
+                console.error(`Insufficient balance for user: ${exchange.userBotDb.username}. Minimum quantity required to open order is: ${minQuantityInCoinsEntry}. User balance quantity is: ${amountBalanceQuantityInCoinsEntry}.`);
+                return null;
+            }
+
+            try {
+                const createMarketOrder = await executeBinanceOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry);
+                if (createMarketOrder && createMarketOrder.info && createMarketOrder.user && createMarketOrder.user.userId) {
+                    return createMarketOrder;
+                } else {
+                    return null;
+                }
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        })
+    );
+    return orders;
+};
 const createOrderTargetIndicator = async (req, res, next) => {
     try {
         const { strategyName, pair, chartTimeframe, side, entry, signalTradeType } = req.body;
@@ -381,6 +449,17 @@ const createOrderTargetIndicator = async (req, res, next) => {
         console.log("🚀 ~ file: binance.js:380 ~ createOrderTargetIndicator ~ minQuantityInCoinsEntry:", minQuantityInCoinsEntry)
         const users = await User.find({username: 'suun'});
         console.log("🚀 ~ file: binance.js:382 ~ createOrderTargetIndicator ~ users:", users)
+
+        const exchanges = await prepareRequestsBinanceExchange(users, pair);
+        const orders = await verifyToOpenTargetOrders(exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side);
+        const signal = new Tradingview({
+            strategyName: strategyName,
+            pair: pair,
+            chartTimeframe: chartTimeframe,
+            side: side,
+            entry: entry,
+            signalTradeType: signalTradeType
+        });
 
         return res.status(201).json({ message: 'ok' });
 
