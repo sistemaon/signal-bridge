@@ -380,7 +380,9 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
 };
 const createOrderTargetIndicator = async (req, res, next) => {
     try {
-        const { strategyName, pair, chartTimeframe, side, entry, signalTradeType } = req.body;
+        const { strategyName, pair, chartTimeframe, side, entry, signalTradeType, isPriceProtect, noPriceProtected } = req.body;
+        console.log("🚀 ~ file: binance.js:384 ~ createOrderTargetIndicator ~ noPriceProtected:", noPriceProtected)
+        console.log("🚀 ~ file: binance.js:384 ~ createOrderTargetIndicator ~ isPriceProtect:", isPriceProtect)
         console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", signalTradeType)
         console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", entry)
         console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", side)
@@ -459,45 +461,47 @@ const createOrderTargetIndicator = async (req, res, next) => {
             return res.status(404).json({ message: 'Exchanges not found.' });
         }
 
-        const orders = await verifyToOpenTargetOrders(exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side);
-        if (!orders || orders.length === 0) {
-            return res.status(404).json({ message: 'Orders not found.' });
-        }
+        return res.status(201).json('OK');
 
-        const signal = new Tradingview({
-            strategyName: strategyName,
-            pair: pair,
-            chartTimeframe: chartTimeframe,
-            side: side,
-            entry: entry,
-            signalTradeType: signalTradeType
-        });
+        // const orders = await verifyToOpenTargetOrders(exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side);
+        // if (!orders || orders.length === 0) {
+        //     return res.status(404).json({ message: 'Orders not found.' });
+        // }
 
-        const usersOrdersIds = [];
-        if (orders) {
-            for (const order of orders) {
-                try {
-                    if (!order) {
-                        continue;
-                    }
-                    if (order.info && order.id && order.user && order.user.userId) {
-                        const saveUserOder = await saveExecutedUserOrder(order, order.user, signal);
-                        usersOrdersIds.push(saveUserOder._id);
-                    }
-                } catch (error) {
-                    console.error(error);
-                    return error;
-                }
-            }
-        }
+        // const signal = new Tradingview({
+        //     strategyName: strategyName,
+        //     pair: pair,
+        //     chartTimeframe: chartTimeframe,
+        //     side: side,
+        //     entry: entry,
+        //     signalTradeType: signalTradeType
+        // });
 
-        signal.orders = usersOrdersIds;
-        const savedSignal = await signal.save();
+        // const usersOrdersIds = [];
+        // if (orders) {
+        //     for (const order of orders) {
+        //         try {
+        //             if (!order) {
+        //                 continue;
+        //             }
+        //             if (order.info && order.id && order.user && order.user.userId) {
+        //                 const saveUserOder = await saveExecutedUserOrder(order, order.user, signal);
+        //                 usersOrdersIds.push(saveUserOder._id);
+        //             }
+        //         } catch (error) {
+        //             console.error(error);
+        //             return error;
+        //         }
+        //     }
+        // }
 
-        console.log("🚀 ~ file: binance.js:485 ~ createOrderTargetIndicator ~ orders:", orders)
-        console.log("🚀 ~ file: binance.js:484 ~ createOrderTargetIndicator ~ savedSignal:", savedSignal)
+        // signal.orders = usersOrdersIds;
+        // const savedSignal = await signal.save();
 
-        return res.status(201).json({ orders: orders, savedSignal: savedSignal });
+        // console.log("🚀 ~ file: binance.js:485 ~ createOrderTargetIndicator ~ orders:", orders)
+        // console.log("🚀 ~ file: binance.js:484 ~ createOrderTargetIndicator ~ savedSignal:", savedSignal)
+
+        // return res.status(201).json({ orders: orders, savedSignal: savedSignal });
 
     } catch (error) {
         console.error(error);
