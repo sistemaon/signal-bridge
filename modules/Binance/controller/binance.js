@@ -392,6 +392,18 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 // const lastOrder = await Binance.findOne({ 'info.symbol': symbol })
                 // .sort({ createdAt: -1 })
 
+                // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
+                // const symbol = lastOrder.info.symbol; // Symbol of the last order
+                // const type = 'MARKET'; // Set order type as market
+                // const side = 'BUY'; // Side of the order (buy)
+                // const amount = lastOrder.info.origQty; // Use the original quantity from the last order
+                // const price = undefined; // Not required for market orders
+                // const params = {
+                // stopPrice: updatedStopLoss,
+                // takeProfitPrice: updatedTakeProfit,
+                // };
+                // const updatedOrder = await binance.editOrder(orderId, symbol, type, side, amount, price, params);
+
                 // edit update stop loss and take profit
                 // const updatedOrder = await binance.editOrder(order.id, symbol, 'MARKET', order.side, order.amount, undefined, {
                 //     stopPrice: stopLossPrice,
