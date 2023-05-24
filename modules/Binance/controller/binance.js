@@ -447,11 +447,23 @@ const createOrderTargetIndicator = async (req, res, next) => {
         console.log("🚀 ~ file: binance.js:378 ~ createOrderTargetIndicator ~ minQuantityInCoinsCeil:", minQuantityInCoinsCeil)
         const minQuantityInCoinsEntry = Number(minQuantityInCoinsCeil.toFixed(decimalPlaces));
         console.log("🚀 ~ file: binance.js:380 ~ createOrderTargetIndicator ~ minQuantityInCoinsEntry:", minQuantityInCoinsEntry)
+
         const users = await User.find({username: 'suun'});
-        console.log("🚀 ~ file: binance.js:382 ~ createOrderTargetIndicator ~ users:", users)
+        console.log("🚀 ~ file: binance.js:382 ~ createOrderTargetIndicator ~ users:", users);
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: 'Users not found.' });
+        }
 
         const exchanges = await prepareRequestsBinanceExchange(users, pair);
+        if (!exchanges || exchanges.length === 0) {
+            return res.status(404).json({ message: 'Exchanges not found.' });
+        }
+
         const orders = await verifyToOpenTargetOrders(exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side);
+        if (!orders || orders.length === 0) {
+            return res.status(404).json({ message: 'Orders not found.' });
+        }
+
         const signal = new Tradingview({
             strategyName: strategyName,
             pair: pair,
@@ -481,6 +493,9 @@ const createOrderTargetIndicator = async (req, res, next) => {
 
         signal.orders = usersOrdersIds;
         const savedSignal = await signal.save();
+
+        console.log("🚀 ~ file: binance.js:485 ~ createOrderTargetIndicator ~ orders:", orders)
+        console.log("🚀 ~ file: binance.js:484 ~ createOrderTargetIndicator ~ savedSignal:", savedSignal)
 
         return res.status(201).json({ orders: orders, savedSignal: savedSignal });
 
