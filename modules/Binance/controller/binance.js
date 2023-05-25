@@ -400,6 +400,12 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 // 
                 console.log("🚀 ~ file: binance.js:398 ~ executeBinanceTargetOrder ~ exchange.userBotDb.userId:", exchange.userBotDb.userId)
                 console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
+                const updatedPosition = await exchange.fapiPrivatePostPositionMargin({
+                    symbol: pairReplaceCache[symbol],
+                    stopLoss: 0.22,
+                    takeProfit: 0.19,
+                });
+                console.log("🚀 ~ file: binance.js:408 ~ executeBinanceTargetOrder ~ updatedPosition:", updatedPosition)
                 return null;
                 // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
                 // const symbol = lastOrder.info.symbol; // Symbol of the last order
@@ -449,7 +455,32 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 //
                 console.log("🚀 ~ file: binance.js:445 ~ executeBinanceTargetOrder ~ exchange.userBotDb.userId:", exchange.userBotDb.userId)
                 console.log("🚀 ~ file: binance.js:438 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
+                const updatedPosition = await exchange.fapiPrivatePostPositionMargin({
+                    symbol: pairReplaceCache[symbol],
+                    stopLoss: 0.22,
+                    takeProfit: 0.19,
+                });
+                console.log("🚀 ~ file: binance.js:457 ~ executeBinanceTargetOrder ~ updatedPosition:", updatedPosition)
                 return null;
+
+                // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
+                // const symbol = lastOrder.info.symbol; // Symbol of the last order
+                // const type = 'MARKET'; // Set order type as market
+                // const side = 'BUY'; // Side of the order (buy)
+                // const amount = lastOrder.info.origQty; // Use the original quantity from the last order
+                // const price = undefined; // Not required for market orders
+                // const params = {
+                // stopPrice: updatedStopLoss,
+                // takeProfitPrice: updatedTakeProfit,
+                // };
+                // const updatedOrder = await binance.editOrder(orderId, symbol, type, side, amount, price, params);
+
+                // edit update stop loss and take profit
+                // const updatedOrder = await binance.editOrder(order.id, symbol, 'MARKET', order.side, order.amount, undefined, {
+                //     stopPrice: stopLossPrice,
+                //     takeProfitPrice: takeProfitPrice,
+                //   });
+                
                 // const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
                 // const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
                 // if (!order) {
