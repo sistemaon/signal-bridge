@@ -213,24 +213,24 @@ const pairReplaceCache = {};
 const createOrderSignalIndicator = async (req, res, next) => {
     try {
         const { strategyName, pair, chartTimeframe, side, entry, signalTradeType } = req.body;
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", signalTradeType)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", entry)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", side)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe.chronoAmount)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe.chronoUnit)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ pair:", pair)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ strategyName:", strategyName)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", signalTradeType)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", entry)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", side)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe.chronoAmount)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe.chronoUnit)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ pair:", pair)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ strategyName:", strategyName)
 
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", typeof signalTradeType)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", typeof entry)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", typeof side)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe.chronoAmount)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe.chronoUnit)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ pair:", typeof pair)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ strategyName:", typeof strategyName)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", req.body);
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", typeof signalTradeType)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", typeof entry)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", typeof side)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe.chronoAmount)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe.chronoUnit)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ pair:", typeof pair)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ strategyName:", typeof strategyName)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", req.body);
         console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", { reqbody: req.body });
 
         if (!strategyName || !pair || !chartTimeframe || !chartTimeframe.chronoAmount || !chartTimeframe.chronoUnit || !side || !entry || !signalTradeType) {
@@ -344,6 +344,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         }
 
         const userLastPositionSymbol = await exchange.fetchAccountPositions([symbol]);
+        console.log("🚀 ~ file: binance.js:347 ~ executeBinanceTargetOrder ~ userLastPositionSymbol:", userLastPositionSymbol)
         if (!userLastPositionSymbol || !Array.isArray(userLastPositionSymbol) || userLastPositionSymbol.length === 0) {
             console.error('Unable to fetch user last position account or position account not found.');
             return 'Unable to fetch user last position account or position account not found.';
@@ -373,6 +374,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         }
 
         const positionSide = userLastPositionSymbol[0]['side'];
+        console.log("🚀 ~ file: binance.js:377 ~ executeBinanceTargetOrder ~ positionSide:", positionSide)
         if (typeof positionSide !== 'string' || (positionSide !== 'long' && positionSide !== 'short')) {
             console.error(`Invalid position side: ${positionSide}`);
             return `Invalid position side: ${positionSide}`;
@@ -384,15 +386,19 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         // if (positionSide === 'short' && side === 'sell') {
         //     return `Short/Sell position on ${symbol} already exists.`;
         // }
-    
-        if (positionSide === 'long' && side === 'buy') {
+        
+        // positionSide === 'long' &&
+        if ( side === 'buy') {
             try {
                 // TODO:
                 // UPDATE POSITION STOP LOSS AND TAKE PROFIT
-                console.log('isPriceProtect ', isPriceProtect)
+                console.log("🚀 ~ file: binance.js:395 ~ executeBinanceTargetOrder ~ isPriceProtect:", isPriceProtect)
                 // Find last order for user
-                const lastOrder = await BinanceOrder.findOne({ 'info.symbol': symbol, user: exchange.userBotDb.userId })
+                console.log("🚀 ~ file: binance.js:398 ~ executeBinanceTargetOrder ~ symbol:", symbol)
+                const lastOrder = await BinanceOrder.findOne({ 'info.symbol': pairReplaceCache[symbol], user: exchange.userBotDb.userId })
                 .sort({ createdAt: -1 })
+                // 
+                console.log("🚀 ~ file: binance.js:398 ~ executeBinanceTargetOrder ~ exchange.userBotDb.userId:", exchange.userBotDb.userId)
                 console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
                 return null;
                 // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
@@ -428,16 +434,20 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 return `Unable to update stop loss and take profit order for user ${exchange.userBotDb.username}: ${error.message}`;
             }
         }
-    
-        if (positionSide === 'short' && side === 'sell') {
+        
+        // positionSide === 'short' &&
+        if ( side === 'sell') {
             try {
                 // TODO:
                 // UPDATE POSITION STOP LOSS AND TAKE PROFIT
-                console.log('isPriceProtect ', isPriceProtect)
+                console.log("🚀 ~ file: binance.js:441 ~ executeBinanceTargetOrder ~ isPriceProtect:", isPriceProtect)
 
                 // Find last order for user
-                const lastOrder = await BinanceOrder.findOne({ 'info.symbol': symbol, user: exchange.userBotDb.userId })
+                console.log("🚀 ~ file: binance.js:446 ~ executeBinanceTargetOrder ~ symbol:", symbol)
+                const lastOrder = await BinanceOrder.findOne({ 'info.symbol': pairReplaceCache[symbol], user: exchange.userBotDb.userId })
                 .sort({ createdAt: -1 })
+                //
+                console.log("🚀 ~ file: binance.js:445 ~ executeBinanceTargetOrder ~ exchange.userBotDb.userId:", exchange.userBotDb.userId)
                 console.log("🚀 ~ file: binance.js:438 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
                 return null;
                 // const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
