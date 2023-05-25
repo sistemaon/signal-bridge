@@ -355,7 +355,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
             return `Invalid position amount: ${positionAmount}`;
         }
 
-        isPriceProtect = undefined;
+        // isPriceProtect = undefined;
         if (positionAmount === 0 && isPriceProtect === undefined) {
             try {
                 const order = await exchange.createOrder(symbol, type, side, amount);
@@ -391,10 +391,10 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 // UPDATE POSITION STOP LOSS AND TAKE PROFIT
                 console.log('isPriceProtect ', isPriceProtect)
                 // Find last order for user
-                const lastOrder = await BinanceOrder.findOne({ 'info.symbol': symbol })
+                const lastOrder = await BinanceOrder.findOne({ 'info.symbol': symbol, user: exchange.userBotDb.userId })
                 .sort({ createdAt: -1 })
                 console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
-
+                return null;
                 // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
                 // const symbol = lastOrder.info.symbol; // Symbol of the last order
                 // const type = 'MARKET'; // Set order type as market
@@ -436,10 +436,10 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 console.log('isPriceProtect ', isPriceProtect)
 
                 // Find last order for user
-                const lastOrder = await BinanceOrder.findOne({ 'info.symbol': symbol })
+                const lastOrder = await BinanceOrder.findOne({ 'info.symbol': symbol, user: exchange.userBotDb.userId })
                 .sort({ createdAt: -1 })
                 console.log("🚀 ~ file: binance.js:438 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
-
+                return null;
                 // const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
                 // const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
                 // if (!order) {
@@ -511,6 +511,7 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
 
             try {
                 const createMarketOrder = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry, isPriceProtect);
+                console.log("🚀 ~ file: binance.js:514 ~ exchanges.map ~ createMarketOrder:", createMarketOrder)
                 if (createMarketOrder && createMarketOrder.info && createMarketOrder.user && createMarketOrder.user.userId) {
                     return createMarketOrder;
                 } else {
