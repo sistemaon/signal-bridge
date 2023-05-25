@@ -355,7 +355,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
             return `Invalid position amount: ${positionAmount}`;
         }
 
-        // isPriceProtect = undefined;
+        isPriceProtect = undefined;
         if (positionAmount === 0 && isPriceProtect === undefined) {
             try {
                 const order = await exchange.createOrder(symbol, type, side, amount);
