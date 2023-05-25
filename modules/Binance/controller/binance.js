@@ -3,6 +3,7 @@ const ccxt = require('ccxt');
 
 const User = require('../../User/model/user');
 const Market = require('../model/market');
+const BinanceOrder = require('../model/order');
 const Tradingview = require('../../Tradingview/model/tradingview');
 
 const { saveExecutedUserOrder, fetchUserOrders } = require('./order');
@@ -354,6 +355,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
             return `Invalid position amount: ${positionAmount}`;
         }
 
+        // isPriceProtect = undefined;
         if (positionAmount === 0 && isPriceProtect === undefined) {
             try {
                 const order = await exchange.createOrder(symbol, type, side, amount);
@@ -389,8 +391,9 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 // UPDATE POSITION STOP LOSS AND TAKE PROFIT
                 console.log('isPriceProtect ', isPriceProtect)
                 // Find last order for user
-                // const lastOrder = await Binance.findOne({ 'info.symbol': symbol })
-                // .sort({ createdAt: -1 })
+                const lastOrder = await BinanceOrder.findOne({ 'info.symbol': symbol })
+                .sort({ createdAt: -1 })
+                console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
 
                 // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
                 // const symbol = lastOrder.info.symbol; // Symbol of the last order
@@ -431,6 +434,11 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 // TODO:
                 // UPDATE POSITION STOP LOSS AND TAKE PROFIT
                 console.log('isPriceProtect ', isPriceProtect)
+
+                // Find last order for user
+                const lastOrder = await BinanceOrder.findOne({ 'info.symbol': symbol })
+                .sort({ createdAt: -1 })
+                console.log("🚀 ~ file: binance.js:438 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
 
                 // const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
                 // const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
