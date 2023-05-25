@@ -399,13 +399,13 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 .sort({ createdAt: -1 })
                 // 
                 console.log("🚀 ~ file: binance.js:398 ~ executeBinanceTargetOrder ~ exchange.userBotDb.userId:", exchange.userBotDb.userId)
+                console.log("🚀 ~ file: binance.js:402 ~ executeBinanceTargetOrder ~ exchange:", exchange)
                 console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
-                const updatedPosition = await exchange.fapiPrivatePostPositionMargin({
-                    symbol: pairReplaceCache[symbol],
-                    stopLoss: 0.22,
-                    takeProfit: 0.19,
-                });
-                console.log("🚀 ~ file: binance.js:408 ~ executeBinanceTargetOrder ~ updatedPosition:", updatedPosition)
+                // const updatedOrder = await exchange.editOrder(lastOrder.id, lastOrder.info.symbol, 'MARKET', 'SELL', 0, undefined, {'stopLossPrice': 0.22, 'takeProfitPrice': 0.19 });
+                // console.log("🚀 ~ file: binance.js:410 ~ executeBinanceTargetOrder ~ updatedOrder:", updatedOrder)
+
+                // const updateOrder = await exchange.createOrder(lastOrder.info.symbol, 'LIMIT', 'buy', lastOrder.amount, 0.22);
+                // console.log("🚀 ~ file: binance.js:407 ~ executeBinanceTargetOrder ~ updateOrder:", updateOrder)
                 return null;
                 // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
                 // const symbol = lastOrder.info.symbol; // Symbol of the last order
@@ -454,13 +454,18 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 .sort({ createdAt: -1 })
                 //
                 console.log("🚀 ~ file: binance.js:445 ~ executeBinanceTargetOrder ~ exchange.userBotDb.userId:", exchange.userBotDb.userId)
+                console.log("🚀 ~ file: binance.js:456 ~ executeBinanceTargetOrder ~ exchange:", exchange)
                 console.log("🚀 ~ file: binance.js:438 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
-                const updatedPosition = await exchange.fapiPrivatePostPositionMargin({
-                    symbol: pairReplaceCache[symbol],
-                    stopLoss: 0.22,
-                    takeProfit: 0.19,
-                });
-                console.log("🚀 ~ file: binance.js:457 ~ executeBinanceTargetOrder ~ updatedPosition:", updatedPosition)
+                // const updateOrder = await exchange.createOrder(lastOrder.info.symbol, 'LIMIT', 'buy', lastOrder.amount, 0.22);
+                // console.log("🚀 ~ file: binance.js:458 ~ executeBinanceTargetOrder ~ updateOrder:", updateOrder)
+                // const updatedPosition = await exchange.fapiPrivatePostPositionMargin({
+                //     symbol: pairReplaceCache[symbol],
+                //     stopLoss: 0.22,
+                //     takeProfit: 0.19,
+                // });
+                // console.log("🚀 ~ file: binance.js:457 ~ executeBinanceTargetOrder ~ updatedPosition:", updatedPosition)
+                // const updatedOrder = await exchange.editOrder(lastOrder.id, lastOrder.info.symbol, 'MARKET', 'SELL', 0, undefined, {'stopLossPrice': 0.22, 'takeProfitPrice': 0.19 });
+                // console.log("🚀 ~ file: binance.js:465 ~ executeBinanceTargetOrder ~ updatedOrder:", updatedOrder)
                 return null;
 
                 // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
