@@ -318,6 +318,7 @@ const createOrderSignalIndicator = async (req, res, next) => {
 
 const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, isPriceProtect) => {
     try {
+        console.log("🚀 ~ file: binance.js:321 ~ executeBinanceTargetOrder ~ exchange:", exchange)
         if (!exchange || !symbol || !type || !side || !amount) {
             console.error('Missing parameters.');
             return 'Missing parameters.';
@@ -406,7 +407,31 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
 
                 // const updateOrder = await exchange.createOrder(lastOrder.info.symbol, 'LIMIT', 'buy', lastOrder.amount, 0.22);
                 // console.log("🚀 ~ file: binance.js:407 ~ executeBinanceTargetOrder ~ updateOrder:", updateOrder)
+
+
+
+                // // Create a stop loss order
+                // const stopLossOrder = await binance.privatePostOrder({
+                //     symbol: symbol,
+                //     side: 'SELL',
+                //     type: 'STOP_MARKET',
+                //     stopPrice: stopLossPrice,
+                //     quantity: 0, // Set to 0 for the entire position
+                // });
+                
+                // // Create a take profit order
+                // const takeProfitOrder = await binance.privatePostOrder({
+                //     symbol: symbol,
+                //     side: 'SELL',
+                //     type: 'TAKE_PROFIT_MARKET',
+                //     stopPrice: takeProfitPrice,
+                //     quantity: 0, // Set to 0 for the entire position
+                // });
                 return null;
+
+
+
+
                 // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
                 // const symbol = lastOrder.info.symbol; // Symbol of the last order
                 // const type = 'MARKET'; // Set order type as market
