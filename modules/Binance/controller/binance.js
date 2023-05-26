@@ -416,7 +416,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     symbol: pairReplaceCache[symbol],
                     side: 'BUY',
                     type: 'STOP_MARKET', // STOP_MARKET
-                    stopPrice: 0.2153,
+                    stopPrice: 0.2152,
                     quantity: 32.3, // Set to 0 for the entire position
                     closePosition: true,
                     // reduceOnly: true,
@@ -428,7 +428,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     symbol: pairReplaceCache[symbol],
                     side: 'BUY',
                     type: 'TAKE_PROFIT_MARKET', // TAKE_PROFIT_MARKET
-                    stopPrice: 0.2151,
+                    stopPrice: 0.2148,
                     quantity: 32.3, // Set to 0 for the entire position
                     closePosition: true,
                     // reduceOnly: true,
