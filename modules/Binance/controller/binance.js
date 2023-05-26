@@ -588,7 +588,7 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
             }
 
             try {
-                const createMarketOrder = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry, isPriceProtect);
+                const createMarketOrder = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry, isPriceProtect); // stop, target
                 console.log("🚀 ~ file: binance.js:514 ~ exchanges.map ~ createMarketOrder:", createMarketOrder)
                 if (createMarketOrder && createMarketOrder.info && createMarketOrder.user && createMarketOrder.user.userId) {
                     return createMarketOrder;
