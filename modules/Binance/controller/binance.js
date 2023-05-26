@@ -540,7 +540,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         return error;
     }
 };
-const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side, isPriceProtect) => {
+const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side, isPriceProtect) => { // stop, target
     if (!exchanges || !Array.isArray(exchanges) || exchanges.length === 0) {
         console.error('Invalid exchanges parameter.');
         return null;
