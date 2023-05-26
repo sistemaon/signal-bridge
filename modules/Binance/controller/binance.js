@@ -605,7 +605,7 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
 };
 const createOrderTargetIndicator = async (req, res, next) => {
     try {
-        const { strategyName, pair, chartTimeframe, side, entry, signalTradeType, isPriceProtect, noPriceProtected } = req.body;
+        const { strategyName, pair, chartTimeframe, side, entry, signalTradeType, isPriceProtect, noPriceProtected, stop, target } = req.body;
         console.log("🚀 ~ file: binance.js:384 ~ createOrderTargetIndicator ~ noPriceProtected:", noPriceProtected)
         console.log("🚀 ~ file: binance.js:384 ~ createOrderTargetIndicator ~ isPriceProtect:", isPriceProtect)
         console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", signalTradeType)
