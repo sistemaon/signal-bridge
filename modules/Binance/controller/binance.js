@@ -628,7 +628,7 @@ const createOrderTargetIndicator = async (req, res, next) => {
         console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", req.body);
         console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", { reqbody: req.body });
 
-        if (!strategyName || !pair || !chartTimeframe || !chartTimeframe.chronoAmount || !chartTimeframe.chronoUnit || !side || !entry || !signalTradeType) {
+        if (!strategyName || !pair || !chartTimeframe || !chartTimeframe.chronoAmount || !chartTimeframe.chronoUnit || !side || !entry || !signalTradeType) { // !stop || !target
             console.error('Missing parameters.');
             return res.status(400).json({ message: 'Missing parameters.' });
         }
