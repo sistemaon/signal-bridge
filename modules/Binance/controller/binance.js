@@ -389,6 +389,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         // }
         
         // positionSide === 'long' &&
+        side = 'buy';
         if ( side === 'buy') {
             try {
                 // TODO:
@@ -410,23 +411,29 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
 
 
 
-                // // Create a stop loss order
-                // const stopLossOrder = await binance.privatePostOrder({
-                //     symbol: symbol,
-                //     side: 'SELL',
-                //     type: 'STOP_MARKET',
-                //     stopPrice: stopLossPrice,
-                //     quantity: 0, // Set to 0 for the entire position
-                // });
+                // Create a stop loss order
+                const stopLossOrder = await exchange.fapiPrivatePostOrder({
+                    symbol: pairReplaceCache[symbol],
+                    side: 'BUY',
+                    type: 'STOP_MARKET', // STOP_MARKET
+                    stopPrice: 0.2153,
+                    quantity: 32.3, // Set to 0 for the entire position
+                    closePosition: true,
+                    // reduceOnly: true,
+                });
+                console.log("🚀 ~ file: binance.js:421 ~ executeBinanceTargetOrder ~ stopLossOrder:", stopLossOrder)
                 
-                // // Create a take profit order
-                // const takeProfitOrder = await binance.privatePostOrder({
-                //     symbol: symbol,
-                //     side: 'SELL',
-                //     type: 'TAKE_PROFIT_MARKET',
-                //     stopPrice: takeProfitPrice,
-                //     quantity: 0, // Set to 0 for the entire position
-                // });
+                // Create a take profit order
+                const takeProfitOrder = await exchange.fapiPrivatePostOrder({
+                    symbol: pairReplaceCache[symbol],
+                    side: 'BUY',
+                    type: 'TAKE_PROFIT_MARKET', // TAKE_PROFIT_MARKET
+                    stopPrice: 0.2151,
+                    quantity: 32.3, // Set to 0 for the entire position
+                    closePosition: true,
+                    // reduceOnly: true,
+                });
+                console.log("🚀 ~ file: binance.js:431 ~ executeBinanceTargetOrder ~ takeProfitOrder:", takeProfitOrder)
                 return null;
 
 
