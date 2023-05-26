@@ -316,7 +316,7 @@ const createOrderSignalIndicator = async (req, res, next) => {
 
 
 
-const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, isPriceProtect) => {
+const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, isPriceProtect) => { // stop, target
     try {
         console.log("🚀 ~ file: binance.js:321 ~ executeBinanceTargetOrder ~ exchange:", exchange)
         if (!exchange || !symbol || !type || !side || !amount) {
