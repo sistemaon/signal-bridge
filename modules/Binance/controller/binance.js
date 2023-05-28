@@ -688,7 +688,7 @@ const createOrderTargetIndicator = async (req, res, next) => {
 
         // return res.status(201).json('OK');
 
-        const orders = await verifyToOpenTargetOrders(exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side, isPriceProtect); // stop, target
+        const orders = await verifyToOpenTargetOrders(exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side, isPriceProtect, stop, target); // stop, target
         if (!orders || orders.length === 0) {
             return res.status(404).json({ message: 'Orders not found.' });
         }
