@@ -316,8 +316,9 @@ const createOrderSignalIndicator = async (req, res, next) => {
 
 
 
-const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, isPriceProtect) => { // stop, target
-    console.log("🚀 ~ file: binance.js:320 ~ executeBinanceTargetOrder ~ stop, target:", stop, target)
+const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, isPriceProtect, stop, target) => {
+    console.log("🚀 ~ file: binance.js:320 ~ executeBinanceTargetOrder ~ stop:", stop)
+    console.log("🚀 ~ file: binance.js:321 ~ executeBinanceTargetOrder ~ target:", target)
     try {
         console.log("🚀 ~ file: binance.js:321 ~ executeBinanceTargetOrder ~ exchange:", exchange)
         if (!exchange || !symbol || !type || !side || !amount) { // stop, target
@@ -593,7 +594,7 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
             }
 
             try {
-                const createMarketOrder = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry, isPriceProtect); // stop, target
+                const createMarketOrder = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry, isPriceProtect, stop, target); // stop, target
                 console.log("🚀 ~ file: binance.js:597 ~ exchanges.map ~ stop, target:", stop, target)
                 console.log("🚀 ~ file: binance.js:514 ~ exchanges.map ~ createMarketOrder:", createMarketOrder)
                 if (createMarketOrder && createMarketOrder.info && createMarketOrder.user && createMarketOrder.user.userId) {
