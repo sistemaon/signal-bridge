@@ -317,9 +317,11 @@ const createOrderSignalIndicator = async (req, res, next) => {
 
 
 const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, isPriceProtect) => { // stop, target
+    console.log("🚀 ~ file: binance.js:320 ~ executeBinanceTargetOrder ~ stop, target:", stop, target)
     try {
         console.log("🚀 ~ file: binance.js:321 ~ executeBinanceTargetOrder ~ exchange:", exchange)
         if (!exchange || !symbol || !type || !side || !amount) { // stop, target
+            console.log("🚀 ~ file: binance.js:323 ~ executeBinanceTargetOrder ~ stop, target:", stop, target)
             console.error('Missing parameters.');
             return 'Missing parameters.';
         }
@@ -471,6 +473,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 console.error(`Unable to update stop loss and take profit order for user ${exchange.userBotDb.username}: ${error.message}`);
                 return `Unable to update stop loss and take profit order for user ${exchange.userBotDb.username}: ${error.message}`;
             }
+                console.log("🚀 ~ file: binance.js:475 ~ executeBinanceTargetOrder ~ stop, target:", stop, target)
         }
         
         // positionSide === 'short' &&
@@ -540,7 +543,9 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         return error;
     }
 };
-const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side, isPriceProtect) => { // stop, target
+const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side, isPriceProtect, stop, target) => { // stop, target
+    console.log("🚀 ~ file: binance.js:547 ~ verifyToOpenTargetOrders ~ stop, target:", stop)
+    console.log("🚀 ~ file: binance.js:544 ~ verifyToOpenTargetOrders ~ stop, target:", target)
     if (!exchanges || !Array.isArray(exchanges) || exchanges.length === 0) {
         console.error('Invalid exchanges parameter.');
         return null;
@@ -589,6 +594,7 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
 
             try {
                 const createMarketOrder = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry, isPriceProtect); // stop, target
+                console.log("🚀 ~ file: binance.js:597 ~ exchanges.map ~ stop, target:", stop, target)
                 console.log("🚀 ~ file: binance.js:514 ~ exchanges.map ~ createMarketOrder:", createMarketOrder)
                 if (createMarketOrder && createMarketOrder.info && createMarketOrder.user && createMarketOrder.user.userId) {
                     return createMarketOrder;
@@ -606,6 +612,7 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
 const createOrderTargetIndicator = async (req, res, next) => {
     try {
         const { strategyName, pair, chartTimeframe, side, entry, signalTradeType, isPriceProtect, noPriceProtected, stop, target } = req.body;
+        console.log("🚀 ~ file: binance.js:615 ~ createOrderTargetIndicator ~ stop, target:", stop, target)
         console.log("🚀 ~ file: binance.js:384 ~ createOrderTargetIndicator ~ noPriceProtected:", noPriceProtected)
         console.log("🚀 ~ file: binance.js:384 ~ createOrderTargetIndicator ~ isPriceProtect:", isPriceProtect)
         console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", signalTradeType)
@@ -689,6 +696,8 @@ const createOrderTargetIndicator = async (req, res, next) => {
         // return res.status(201).json('OK');
 
         const orders = await verifyToOpenTargetOrders(exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side, isPriceProtect, stop, target); // stop, target
+        console.log("🚀 ~ file: binance.js:699 ~ createOrderTargetIndicator ~ stop, target:", stop, target)
+        console.log("🚀 ~ file: binance.js:699 ~ createOrderTargetIndicator ~ stop, target:", stop, target)
         if (!orders || orders.length === 0) {
             return res.status(404).json({ message: 'Orders not found.' });
         }
