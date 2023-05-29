@@ -419,7 +419,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     symbol: pairReplaceCache[symbol],
                     side: 'BUY',
                     type: 'STOP_MARKET', // STOP_MARKET
-                    stopPrice: 0.2152, // stop
+                    stopPrice: stop, // stop
                     quantity: 32.3, // Set to 0 for the entire position
                     closePosition: true,
                     // reduceOnly: true,
@@ -431,16 +431,13 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     symbol: pairReplaceCache[symbol],
                     side: 'BUY',
                     type: 'TAKE_PROFIT_MARKET', // TAKE_PROFIT_MARKET
-                    stopPrice: 0.2148, // target
+                    stopPrice: target, // target
                     quantity: 32.3, // Set to 0 for the entire position
                     closePosition: true,
                     // reduceOnly: true,
                 });
                 console.log("🚀 ~ file: binance.js:431 ~ executeBinanceTargetOrder ~ takeProfitOrder:", takeProfitOrder)
                 return null;
-
-
-
 
                 // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
                 // const symbol = lastOrder.info.symbol; // Symbol of the last order
@@ -490,7 +487,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 .sort({ createdAt: -1 })
                 //
                 console.log("🚀 ~ file: binance.js:445 ~ executeBinanceTargetOrder ~ exchange.userBotDb.userId:", exchange.userBotDb.userId)
-                console.log("🚀 ~ file: binance.js:456 ~ executeBinanceTargetOrder ~ exchange:", exchange)
+                // console.log("🚀 ~ file: binance.js:456 ~ executeBinanceTargetOrder ~ exchange:", exchange)
                 console.log("🚀 ~ file: binance.js:438 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
                 // const updateOrder = await exchange.createOrder(lastOrder.info.symbol, 'LIMIT', 'buy', lastOrder.amount, 0.22);
                 // console.log("🚀 ~ file: binance.js:458 ~ executeBinanceTargetOrder ~ updateOrder:", updateOrder)
