@@ -359,17 +359,79 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
             return `Invalid position amount: ${positionAmount}`;
         }
 
-        // isPriceProtect = undefined;
+        isPriceProtect = undefined;
         if (positionAmount === 0 && !isPriceProtect) {
             try {
-                const order = await exchange.createOrder(symbol, type, side, amount);
-                if (!order) {
-                    const message = `Unable to create order for user: ${exchange.userBotDb.username}.`;
-                    console.error(message);
-                    return message;
+                if (side === 'buy') {
+                    const order = await exchange.createOrder(symbol, type, side, amount);
+                    if (!order) {
+                        const message = `Unable to create order for user: ${exchange.userBotDb.username}.`;
+                        console.error(message);
+                        return message;
+                    }
+                    order.user = exchange.userBotDb;
+
+                    // Create a stop loss order
+                    const stopLossOrder = await exchange.fapiPrivatePostOrder({
+                        symbol: pairReplaceCache[symbol],
+                        side: 'SELL',
+                        type: 'STOP_MARKET', // STOP_MARKET
+                        stopPrice: stop, // stop
+                        quantity: amount, // Set to 0 for the entire position
+                        closePosition: true,
+                        // reduceOnly: true,
+                    });
+                    console.log("🚀 ~ file: binance.js:384 ~ executeBinanceTargetOrder ~ stopLossOrder:", stopLossOrder)
+
+                    // Create a take profit order
+                    const takeProfitOrder = await exchange.fapiPrivatePostOrder({
+                        symbol: pairReplaceCache[symbol],
+                        side: 'SELL',
+                        type: 'TAKE_PROFIT_MARKET', // TAKE_PROFIT_MARKET
+                        stopPrice: target, // target
+                        quantity: amount, // Set to 0 for the entire position
+                        closePosition: true,
+                        // reduceOnly: true,
+                    });
+                    console.log("🚀 ~ file: binance.js:396 ~ executeBinanceTargetOrder ~ takeProfitOrder:", takeProfitOrder)
+
+                    return order;
                 }
-                order.user = exchange.userBotDb;
-                return order;
+                if (side === 'sell') {
+                    const order = await exchange.createOrder(symbol, type, side, amount);
+                    if (!order) {
+                        const message = `Unable to create order for user: ${exchange.userBotDb.username}.`;
+                        console.error(message);
+                        return message;
+                    }
+                    order.user = exchange.userBotDb;
+
+                    // Create a stop loss order
+                    const stopLossOrder = await exchange.fapiPrivatePostOrder({
+                        symbol: pairReplaceCache[symbol],
+                        side: 'BUY',
+                        type: 'STOP_MARKET', // STOP_MARKET
+                        stopPrice: stop, // stop
+                        quantity: amount, // Set to 0 for the entire position
+                        closePosition: true,
+                        // reduceOnly: true,
+                    });
+                    console.log("🚀 ~ file: binance.js:419 ~ executeBinanceTargetOrder ~ stopLossOrder:", stopLossOrder)
+
+                    // Create a take profit order
+                    const takeProfitOrder = await exchange.fapiPrivatePostOrder({
+                        symbol: pairReplaceCache[symbol],
+                        side: 'BUY',
+                        type: 'TAKE_PROFIT_MARKET', // TAKE_PROFIT_MARKET
+                        stopPrice: target, // target
+                        quantity: amount, // Set to 0 for the entire position
+                        closePosition: true,
+                        // reduceOnly: true,
+                    });
+                    console.log("🚀 ~ file: binance.js:431 ~ executeBinanceTargetOrder ~ takeProfitOrder:", takeProfitOrder)
+
+                    return order;
+                }
             } catch (error) {
                 console.error(`Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`);
                 return `Unable to create order for user ${exchange.userBotDb.username}: ${error.message}`;
@@ -584,7 +646,7 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
             }
 
             try {
-                const createMarketOrder = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry, isPriceProtect, stop, target); // stop, target
+                const createMarketOrder = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry, isPriceProtect, stop, target);
                 console.log("🚀 ~ file: binance.js:597 ~ exchanges.map ~ stop, target:", stop, target)
                 console.log("🚀 ~ file: binance.js:514 ~ exchanges.map ~ createMarketOrder:", createMarketOrder)
                 if (createMarketOrder && createMarketOrder.info && createMarketOrder.user && createMarketOrder.user.userId) {
@@ -682,7 +744,7 @@ const createOrderTargetIndicator = async (req, res, next) => {
             takeProfit = Number(target.toFixed(decimalPlaces));
         }
 
-        const users = await User.find({username: 'suun'});
+        const users = await User.find({ username: 'suun' });
         // console.log("🚀 ~ file: binance.js:382 ~ createOrderTargetIndicator ~ users:", users);
         if (!users || users.length === 0) {
             return res.status(404).json({ message: 'Users not found.' });
