@@ -359,7 +359,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
             return `Invalid position amount: ${positionAmount}`;
         }
 
-        isPriceProtect = undefined;
+        // isPriceProtect = undefined;
         if (positionAmount === 0 && !isPriceProtect) {
             try {
                 if (side === 'buy') {
@@ -468,30 +468,33 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 // console.log("🚀 ~ file: binance.js:402 ~ executeBinanceTargetOrder ~ exchange:", exchange)
                 console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
 
+                const openOrder = await exchange.fetchOpenOrders(pairReplaceCache[symbol])
+                console.log("🚀 ~ file: binance.js:472 ~ executeBinanceTargetOrder ~ openOrder:", openOrder)
+
 
                 // Create a stop loss order
-                const stopLossOrder = await exchange.fapiPrivatePostOrder({
-                    symbol: pairReplaceCache[symbol],
-                    side: 'BUY',
-                    type: 'STOP_MARKET', // STOP_MARKET
-                    stopPrice: stop, // stop
-                    quantity: lastOrder.amount, // Set to 0 for the entire position
-                    closePosition: true,
-                    // reduceOnly: true,
-                });
-                console.log("🚀 ~ file: binance.js:421 ~ executeBinanceTargetOrder ~ stopLossOrder:", stopLossOrder)
+                // const stopLossOrder = await exchange.fapiPrivatePostOrder({
+                //     symbol: pairReplaceCache[symbol],
+                //     side: 'BUY',
+                //     type: 'STOP_MARKET', // STOP_MARKET
+                //     stopPrice: stop, // stop
+                //     quantity: lastOrder.amount, // Set to 0 for the entire position
+                //     closePosition: true,
+                //     // reduceOnly: true,
+                // });
+                // console.log("🚀 ~ file: binance.js:421 ~ executeBinanceTargetOrder ~ stopLossOrder:", stopLossOrder)
 
-                // Create a take profit order
-                const takeProfitOrder = await exchange.fapiPrivatePostOrder({
-                    symbol: pairReplaceCache[symbol],
-                    side: 'BUY',
-                    type: 'TAKE_PROFIT_MARKET', // TAKE_PROFIT_MARKET
-                    stopPrice: target, // target
-                    quantity: lastOrder.amount, // Set to 0 for the entire position
-                    closePosition: true,
-                    // reduceOnly: true,
-                });
-                console.log("🚀 ~ file: binance.js:431 ~ executeBinanceTargetOrder ~ takeProfitOrder:", takeProfitOrder)
+                // // Create a take profit order
+                // const takeProfitOrder = await exchange.fapiPrivatePostOrder({
+                //     symbol: pairReplaceCache[symbol],
+                //     side: 'BUY',
+                //     type: 'TAKE_PROFIT_MARKET', // TAKE_PROFIT_MARKET
+                //     stopPrice: target, // target
+                //     quantity: lastOrder.amount, // Set to 0 for the entire position
+                //     closePosition: true,
+                //     // reduceOnly: true,
+                // });
+                // console.log("🚀 ~ file: binance.js:431 ~ executeBinanceTargetOrder ~ takeProfitOrder:", takeProfitOrder)
                 return null;
 
                 // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
