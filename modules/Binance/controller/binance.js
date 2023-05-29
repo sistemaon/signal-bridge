@@ -320,9 +320,8 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
     console.log("🚀 ~ file: binance.js:320 ~ executeBinanceTargetOrder ~ stop:", stop)
     console.log("🚀 ~ file: binance.js:321 ~ executeBinanceTargetOrder ~ target:", target)
     try {
-        console.log("🚀 ~ file: binance.js:321 ~ executeBinanceTargetOrder ~ exchange:", exchange)
-        if (!exchange || !symbol || !type || !side || !amount) { // stop, target
-            console.log("🚀 ~ file: binance.js:323 ~ executeBinanceTargetOrder ~ stop, target:", stop, target)
+        // console.log("🚀 ~ file: binance.js:321 ~ executeBinanceTargetOrder ~ exchange:", exchange)
+        if (!exchange || !symbol || !type || !side || !amount) {
             console.error('Missing parameters.');
             return 'Missing parameters.';
         }
@@ -604,27 +603,27 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
 const createOrderTargetIndicator = async (req, res, next) => {
     try {
         const { strategyName, pair, chartTimeframe, side, entry, signalTradeType, isPriceProtect, noPriceProtected, stop, target } = req.body;
-        console.log("🚀 ~ file: binance.js:615 ~ createOrderTargetIndicator ~ stop, target:", stop, target)
-        console.log("🚀 ~ file: binance.js:384 ~ createOrderTargetIndicator ~ noPriceProtected:", noPriceProtected)
-        console.log("🚀 ~ file: binance.js:384 ~ createOrderTargetIndicator ~ isPriceProtect:", isPriceProtect)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", signalTradeType)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", entry)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", side)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe.chronoAmount)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe.chronoUnit)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ pair:", pair)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ strategyName:", strategyName)
+        // console.log("🚀 ~ file: binance.js:615 ~ createOrderTargetIndicator ~ stop, target: ", stop, target)
+        // console.log("🚀 ~ file: binance.js:384 ~ createOrderTargetIndicator ~ noPriceProtected:", noPriceProtected)
+        // console.log("🚀 ~ file: binance.js:384 ~ createOrderTargetIndicator ~ isPriceProtect:", isPriceProtect)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", signalTradeType)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", entry)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", side)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe.chronoAmount)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", chartTimeframe.chronoUnit)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ pair:", pair)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ strategyName:", strategyName)
 
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", typeof signalTradeType)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", typeof entry)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", typeof side)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe.chronoAmount)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe.chronoUnit)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ pair:", typeof pair)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ strategyName:", typeof strategyName)
-        console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", req.body);
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ signalTradeType:", typeof signalTradeType)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ entry:", typeof entry)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ side:", typeof side)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe.chronoAmount)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ chartTimeframe:", typeof chartTimeframe.chronoUnit)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ pair:", typeof pair)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ strategyName:", typeof strategyName)
+        // console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", req.body);
         console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", { reqbody: req.body });
 
         if (!strategyName || !pair || !chartTimeframe || !chartTimeframe.chronoAmount || !chartTimeframe.chronoUnit || !side || !entry || !signalTradeType) { // !stop || !target
@@ -661,7 +660,7 @@ const createOrderTargetIndicator = async (req, res, next) => {
 
         const minNotional = marketSymbol.limits.cost.min;
         console.log("🚀 ~ file: binance.js:368 ~ createOrderTargetIndicator ~ minNotional:", minNotional)
-        const decimalPlaces = marketSymbol.precision.amount;
+        const decimalPlaces = marketSymbol.precision.price;
         console.log("🚀 ~ file: binance.js:370 ~ createOrderTargetIndicator ~ decimalPlaces:", decimalPlaces)
         const lotSize = marketSymbol.info.filters.find(filter => filter.filterType === 'LOT_SIZE');
         console.log("🚀 ~ file: binance.js:372 ~ createOrderTargetIndicator ~ lotSize:", lotSize)
@@ -684,7 +683,7 @@ const createOrderTargetIndicator = async (req, res, next) => {
         }
 
         const users = await User.find({username: 'suun'});
-        console.log("🚀 ~ file: binance.js:382 ~ createOrderTargetIndicator ~ users:", users);
+        // console.log("🚀 ~ file: binance.js:382 ~ createOrderTargetIndicator ~ users:", users);
         if (!users || users.length === 0) {
             return res.status(404).json({ message: 'Users not found.' });
         }
