@@ -361,7 +361,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         }
 
         // isPriceProtect = undefined;
-        if (positionAmount === 0 && isPriceProtect === undefined) {
+        if (positionAmount === 0 && !isPriceProtect) {
             try {
                 const order = await exchange.createOrder(symbol, type, side, amount);
                 if (!order) {
@@ -402,37 +402,31 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 console.log("🚀 ~ file: binance.js:398 ~ executeBinanceTargetOrder ~ symbol:", symbol)
                 const lastOrder = await BinanceOrder.findOne({ 'info.symbol': pairReplaceCache[symbol], user: exchange.userBotDb.userId })
                 .sort({ createdAt: -1 })
-                // 
+
                 console.log("🚀 ~ file: binance.js:398 ~ executeBinanceTargetOrder ~ exchange.userBotDb.userId:", exchange.userBotDb.userId)
-                console.log("🚀 ~ file: binance.js:402 ~ executeBinanceTargetOrder ~ exchange:", exchange)
+                // console.log("🚀 ~ file: binance.js:402 ~ executeBinanceTargetOrder ~ exchange:", exchange)
                 console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
-                // const updatedOrder = await exchange.editOrder(lastOrder.id, lastOrder.info.symbol, 'MARKET', 'SELL', 0, undefined, {'stopLossPrice': 0.22, 'takeProfitPrice': 0.19 });
-                // console.log("🚀 ~ file: binance.js:410 ~ executeBinanceTargetOrder ~ updatedOrder:", updatedOrder)
-
-                // const updateOrder = await exchange.createOrder(lastOrder.info.symbol, 'LIMIT', 'buy', lastOrder.amount, 0.22);
-                // console.log("🚀 ~ file: binance.js:407 ~ executeBinanceTargetOrder ~ updateOrder:", updateOrder)
 
 
-                // stop, target
                 // Create a stop loss order
                 const stopLossOrder = await exchange.fapiPrivatePostOrder({
                     symbol: pairReplaceCache[symbol],
                     side: 'BUY',
                     type: 'STOP_MARKET', // STOP_MARKET
                     stopPrice: stop, // stop
-                    quantity: 32.3, // Set to 0 for the entire position
+                    quantity: lastOrder.amount, // Set to 0 for the entire position
                     closePosition: true,
                     // reduceOnly: true,
                 });
                 console.log("🚀 ~ file: binance.js:421 ~ executeBinanceTargetOrder ~ stopLossOrder:", stopLossOrder)
-                
+
                 // Create a take profit order
                 const takeProfitOrder = await exchange.fapiPrivatePostOrder({
                     symbol: pairReplaceCache[symbol],
                     side: 'BUY',
                     type: 'TAKE_PROFIT_MARKET', // TAKE_PROFIT_MARKET
                     stopPrice: target, // target
-                    quantity: 32.3, // Set to 0 for the entire position
+                    quantity: lastOrder.amount, // Set to 0 for the entire position
                     closePosition: true,
                     // reduceOnly: true,
                 });
@@ -680,6 +674,15 @@ const createOrderTargetIndicator = async (req, res, next) => {
         const minQuantityInCoinsEntry = Number(minQuantityInCoinsCeil.toFixed(decimalPlaces));
         console.log("🚀 ~ file: binance.js:380 ~ createOrderTargetIndicator ~ minQuantityInCoinsEntry:", minQuantityInCoinsEntry)
 
+        let stopLoss = 0
+        if (stop) {
+            stopLoss = Number(stop.toFixed(decimalPlaces));
+        }
+        let takeProfit = 0
+        if (target) {
+            takeProfit = Number(target.toFixed(decimalPlaces));
+        }
+
         const users = await User.find({username: 'suun'});
         console.log("🚀 ~ file: binance.js:382 ~ createOrderTargetIndicator ~ users:", users);
         if (!users || users.length === 0) {
@@ -693,50 +696,48 @@ const createOrderTargetIndicator = async (req, res, next) => {
 
         // return res.status(201).json('OK');
 
-        const orders = await verifyToOpenTargetOrders(exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side, isPriceProtect, stop, target); // stop, target
-        console.log("🚀 ~ file: binance.js:699 ~ createOrderTargetIndicator ~ stop, target:", stop, target)
-        console.log("🚀 ~ file: binance.js:699 ~ createOrderTargetIndicator ~ stop, target:", stop, target)
+        const orders = await verifyToOpenTargetOrders(exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side, isPriceProtect, stopLoss, takeProfit);
+        console.log("🚀 ~ file: binance.js:581 ~ createOrderTargetIndicator ~ orders:", orders)
         if (!orders || orders.length === 0) {
             return res.status(404).json({ message: 'Orders not found.' });
         }
-        console.log("🚀 ~ file: binance.js:581 ~ createOrderTargetIndicator ~ orders:", orders)
 
-        return res.status(201).json(orders);
+        // return res.status(201).json(orders);
 
-        // const signal = new Tradingview({
-        //     strategyName: strategyName,
-        //     pair: pair,
-        //     chartTimeframe: chartTimeframe,
-        //     side: side,
-        //     entry: entry,
-        //     signalTradeType: signalTradeType
-        // });
+        const signal = new Tradingview({
+            strategyName: strategyName,
+            pair: pair,
+            chartTimeframe: chartTimeframe,
+            side: side,
+            entry: entry,
+            signalTradeType: signalTradeType
+        });
 
-        // const usersOrdersIds = [];
-        // if (orders) {
-        //     for (const order of orders) {
-        //         try {
-        //             if (!order) {
-        //                 continue;
-        //             }
-        //             if (order.info && order.id && order.user && order.user.userId) {
-        //                 const saveUserOder = await saveExecutedUserOrder(order, order.user, signal);
-        //                 usersOrdersIds.push(saveUserOder._id);
-        //             }
-        //         } catch (error) {
-        //             console.error(error);
-        //             return error;
-        //         }
-        //     }
-        // }
+        const usersOrdersIds = [];
+        if (orders) {
+            for (const order of orders) {
+                try {
+                    if (!order) {
+                        continue;
+                    }
+                    if (order.info && order.id && order.user && order.user.userId) {
+                        const saveUserOder = await saveExecutedUserOrder(order, order.user, signal);
+                        usersOrdersIds.push(saveUserOder._id);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    return error;
+                }
+            }
+        }
 
-        // signal.orders = usersOrdersIds;
-        // const savedSignal = await signal.save();
+        signal.orders = usersOrdersIds;
+        const savedSignal = await signal.save();
 
-        // console.log("🚀 ~ file: binance.js:485 ~ createOrderTargetIndicator ~ orders:", orders)
-        // console.log("🚀 ~ file: binance.js:484 ~ createOrderTargetIndicator ~ savedSignal:", savedSignal)
+        console.log("🚀 ~ file: binance.js:485 ~ createOrderTargetIndicator ~ orders:", orders)
+        console.log("🚀 ~ file: binance.js:484 ~ createOrderTargetIndicator ~ savedSignal:", savedSignal)
 
-        // return res.status(201).json({ orders: orders, savedSignal: savedSignal });
+        return res.status(201).json({ orders: orders, savedSignal: savedSignal });
 
     } catch (error) {
         console.error(error);
