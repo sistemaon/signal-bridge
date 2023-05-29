@@ -468,8 +468,26 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 // console.log("🚀 ~ file: binance.js:402 ~ executeBinanceTargetOrder ~ exchange:", exchange)
                 console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
 
-                const openOrder = await exchange.fetchOpenOrders(pairReplaceCache[symbol])
-                console.log("🚀 ~ file: binance.js:472 ~ executeBinanceTargetOrder ~ openOrder:", openOrder)
+                const openOrders = await exchange.fetchOpenOrders(pairReplaceCache[symbol])
+                console.log("🚀 ~ file: binance.js:472 ~ executeBinanceTargetOrder ~ openOrders:", openOrders)
+
+                if (openOrders) {
+                    for (const openOrder of openOrders) {
+                        try {
+                            if (!openOrder) {
+                                continue;
+                            }
+                            if (openOrder) {
+                                console.log("🚀 ~ file: binance.js:481 ~ executeBinanceTargetOrder ~ openOrder:", openOrder)
+                                // const saveUserOder = await saveExecutedUserOrder(openOrder, openOrder.user, signal);
+                                // usersOrdersIds.push(saveUserOder._id);
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            return error;
+                        }
+                    }
+                }
 
 
                 // Create a stop loss order
