@@ -785,10 +785,6 @@ const createOrderTargetIndicator = async (req, res, next) => {
                 console.log("🚀 ~ file: binance.js:779 ~ createOrderTargetIndicator ~ position:", position)
                 const marketPosition = position.find(position => position.type === 'market');
                 console.log("🚀 ~ file: binance.js:786 ~ createOrderTargetIndicator ~ marketPosition:", marketPosition)
-                const marketTakeProfitPosition = position.find(position => position.type === 'TAKE_PROFIT_MARKET');
-                console.log("🚀 ~ file: binance.js:788 ~ createOrderTargetIndicator ~ marketTakeProfitPosition:", marketTakeProfitPosition)
-                const marketStopLossPosition = position.find(position => position.type === 'STOP_MARKET');
-                console.log("🚀 ~ file: binance.js:790 ~ createOrderTargetIndicator ~ marketStopLossPosition:", marketStopLossPosition)
 
                 try {
                     if (!marketPosition) {
@@ -798,6 +794,11 @@ const createOrderTargetIndicator = async (req, res, next) => {
                         const saveUserOrder = await saveExecutedUserOrder(marketPosition, marketPosition.user, signal);
                         console.log("🚀 ~ file: binance.js:798 ~ createOrderTargetIndicator ~ saveUserOrder:", saveUserOrder)
                         usersOrdersIds.push(saveUserOrder._id);
+
+                        const marketTakeProfitPosition = position.find(position => position.type === 'TAKE_PROFIT_MARKET');
+                        console.log("🚀 ~ file: binance.js:799 ~ createOrderTargetIndicator ~ marketTakeProfitPosition:", marketTakeProfitPosition)
+                        const marketStopLossPosition = position.find(position => position.type === 'STOP_MARKET');
+                        console.log("🚀 ~ file: binance.js:801 ~ createOrderTargetIndicator ~ marketStopLossPosition:", marketStopLossPosition)
 
                         if (marketTakeProfitPosition) {
                             const saveUserTargetTakeProfit = await saveExecutedTargetUserOrder(marketTakeProfitPosition, saveUserOrder);
