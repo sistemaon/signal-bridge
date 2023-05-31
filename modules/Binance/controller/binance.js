@@ -804,7 +804,11 @@ const createOrderTargetIndicator = async (req, res, next) => {
                             console.log("🚀 ~ file: binance.js:804 ~ createOrderTargetIndicator ~ saveUserTargetTakeProfit:", saveUserTargetTakeProfit)
                         }
 
-                        
+                        if (marketStopLossPosition) {
+                            const saveUserTargetStopLoss = await saveExecutedTargetUserOrder(marketStopLossPosition, saveUserOrder);
+                            console.log("🚀 ~ file: binance.js:809 ~ createOrderTargetIndicator ~ saveUserTargetStopLoss:", saveUserTargetStopLoss)
+                        }
+
                     }
                 } catch (error) {
                     console.error(error);
