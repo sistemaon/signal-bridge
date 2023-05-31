@@ -804,13 +804,12 @@ const createOrderTargetIndicator = async (req, res, next) => {
             }
         }
 
-        // signal.orders = usersOrdersIds;
-        // const savedSignal = await signal.save();
+        signal.orders = usersOrdersIds;
+        const savedSignal = await signal.save();
 
-        // console.log("🚀 ~ file: binance.js:485 ~ createOrderTargetIndicator ~ orders:", orders)
-        // console.log("🚀 ~ file: binance.js:484 ~ createOrderTargetIndicator ~ savedSignal:", savedSignal)
+        console.log("🚀 ~ file: binance.js:484 ~ createOrderTargetIndicator ~ savedSignal:", savedSignal)
 
-        // return res.status(201).json({ orders: orders, savedSignal: savedSignal });
+        return res.status(201).json({ orders: positions, savedSignal: savedSignal });
 
     } catch (error) {
         console.error(error);
