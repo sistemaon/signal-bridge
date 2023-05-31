@@ -26,7 +26,7 @@ const saveExecutedTargetUserOrder = async (target, order) => {
             priceProtect: target.priceProtect,
             origType: target.origType,
             updateTime: target.updateTime,
-            order: order.orderId
+            order: order._id
         });
 
         const targetUserOrder = await saveTargetUserOrder.save();

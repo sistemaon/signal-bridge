@@ -7,6 +7,7 @@ const BinanceOrder = require('../model/order');
 const Tradingview = require('../../Tradingview/model/tradingview');
 
 const { saveExecutedUserOrder, fetchUserOrders } = require('./order');
+const { saveExecutedTargetUserOrder } = require('./target');
 
 const prepareRequestsBinanceExchange = async (users, symbol) => {
     const defaultOptions = {
@@ -291,8 +292,8 @@ const createOrderSignalIndicator = async (req, res, next) => {
                         continue;
                     }
                     if (order.info && order.id && order.user && order.user.userId) {
-                        const saveUserOder = await saveExecutedUserOrder(order, order.user, signal);
-                        usersOrdersIds.push(saveUserOder._id);
+                        const saveUserOrder = await saveExecutedUserOrder(order, order.user, signal);
+                        usersOrdersIds.push(saveUserOrder._id);
                     }
                 } catch (error) {
                     console.error(error);
@@ -478,8 +479,8 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                                 console.log("🚀 ~ file: binance.js:481 ~ executeBinanceTargetOrder ~ openOrder:", openOrder)
                                 const cancelOrder = await exchange.cancelOrder(openOrder.id, pairReplaceCache[symbol])
                                 console.log("🚀 ~ file: binance.js:482 ~ executeBinanceTargetOrder ~ cancelOrder:", cancelOrder)
-                                // const saveUserOder = await saveExecutedUserOrder(openOrder, openOrder.user, signal);
-                                // usersOrdersIds.push(saveUserOder._id);
+                                // const saveUserOrder = await saveExecutedUserOrder(openOrder, openOrder.user, signal);
+                                // usersOrdersIds.push(saveUserOrder._id);
                             }
                         } catch (error) {
                             console.error(error);
@@ -794,8 +795,16 @@ const createOrderTargetIndicator = async (req, res, next) => {
                         continue;
                     }
                     if (marketPosition.info && marketPosition.id && marketPosition.user && marketPosition.user.userId) {
-                        const saveUserOder = await saveExecutedUserOrder(marketPosition, marketPosition.user, signal);
-                        usersOrdersIds.push(saveUserOder._id);
+                        const saveUserOrder = await saveExecutedUserOrder(marketPosition, marketPosition.user, signal);
+                        console.log("🚀 ~ file: binance.js:798 ~ createOrderTargetIndicator ~ saveUserOrder:", saveUserOrder)
+                        usersOrdersIds.push(saveUserOrder._id);
+
+                        if (marketTakeProfitPosition) {
+                            const saveUserTargetTakeProfit = await saveExecutedTargetUserOrder(marketTakeProfitPosition, saveUserOrder);
+                            console.log("🚀 ~ file: binance.js:804 ~ createOrderTargetIndicator ~ saveUserTargetTakeProfit:", saveUserTargetTakeProfit)
+                        }
+
+                        
                     }
                 } catch (error) {
                     console.error(error);
