@@ -456,8 +456,6 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         side = 'buy';
         if ( side === 'buy') {
             try {
-                // TODO:
-                // UPDATE POSITION STOP LOSS AND TAKE PROFIT
                 console.log("🚀 ~ file: binance.js:395 ~ executeBinanceTargetOrder ~ isPriceProtect:", isPriceProtect)
                 // Find last order for user
                 console.log("🚀 ~ file: binance.js:398 ~ executeBinanceTargetOrder ~ symbol:", symbol)
@@ -552,8 +550,6 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         // positionSide === 'short' &&
         if ( side === 'sell') {
             try {
-                // TODO:
-                // UPDATE POSITION STOP LOSS AND TAKE PROFIT
                 console.log("🚀 ~ file: binance.js:441 ~ executeBinanceTargetOrder ~ isPriceProtect:", isPriceProtect)
 
                 // Find last order for user
@@ -666,14 +662,21 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
             }
 
             try {
-                const createMarketOrder = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry, isPriceProtect, stop, target);
-                console.log("🚀 ~ file: binance.js:597 ~ exchanges.map ~ stop, target:", stop, target)
-                console.log("🚀 ~ file: binance.js:514 ~ exchanges.map ~ createMarketOrder:", createMarketOrder)
-                if (createMarketOrder && createMarketOrder.info && createMarketOrder.user && createMarketOrder.user.userId) {
-                    return createMarketOrder;
-                } else {
-                    return null;
-                }
+                const createMarketPositions = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry, isPriceProtect, stop, target);
+                // console.log("🚀 ~ file: binance.js:597 ~ exchanges.map ~ stop, target:", stop, target)
+                // console.log("🚀 ~ file: binance.js:514 ~ exchanges.map ~ createMarketPositions:", createMarketPositions)
+                return createMarketPositions;
+
+                //////////////////////////////////
+                // const marketPosition = createMarketPositions.find(position => position.type === 'market');
+                // console.log("🚀 ~ file: binance.js:669 ~ exchanges.map ~ marketPosition:", marketPosition)
+                // if (marketPosition && marketPosition.info && marketPosition.user && marketPosition.user.userId) {
+                //     return createMarketPositions;
+                // } else {
+                //     return null;
+                // }
+                //////////////////////////////////
+
             } catch (error) {
                 console.error(error);
                 return null;
@@ -778,18 +781,26 @@ const createOrderTargetIndicator = async (req, res, next) => {
         const usersOrdersIds = [];
         if (positions) {
             for (const position of positions) {
-                // try {
-                //     if (!position) {
-                //         continue;
-                //     }
-                //     if (position.info && position.id && position.user && position.user.userId) {
-                //         const saveUserOder = await saveExecutedUserOrder(position, position.user, signal);
-                //         usersOrdersIds.push(saveUserOder._id);
-                //     }
-                // } catch (error) {
-                //     console.error(error);
-                //     return error;
-                // }
+                console.log("🚀 ~ file: binance.js:779 ~ createOrderTargetIndicator ~ position:", position)
+                const marketPosition = position.find(position => position.type === 'market');
+                console.log("🚀 ~ file: binance.js:786 ~ createOrderTargetIndicator ~ marketPosition:", marketPosition)
+                const marketTakeProfitPosition = position.find(position => position.type === 'TAKE_PROFIT_MARKET');
+                console.log("🚀 ~ file: binance.js:788 ~ createOrderTargetIndicator ~ marketTakeProfitPosition:", marketTakeProfitPosition)
+                const marketStopLossPosition = position.find(position => position.type === 'STOP_MARKET');
+                console.log("🚀 ~ file: binance.js:790 ~ createOrderTargetIndicator ~ marketStopLossPosition:", marketStopLossPosition)
+
+                try {
+                    if (!marketPosition) {
+                        continue;
+                    }
+                    if (marketPosition.info && marketPosition.id && marketPosition.user && marketPosition.user.userId) {
+                        const saveUserOder = await saveExecutedUserOrder(marketPosition, marketPosition.user, signal);
+                        usersOrdersIds.push(saveUserOder._id);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    return error;
+                }
             }
         }
 
