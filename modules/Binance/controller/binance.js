@@ -429,11 +429,13 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         if ( side === 'buy') {
             try {
                 // Find last order for user
-                const lastOrder = await BinanceOrder.findOne({ 'info.symbol': pairReplaceCache[symbol], user: exchange.userBotDb.userId }).sort({ createdAt: -1 })
+                const lastOrder = await BinanceOrder.findOne({ 'info.symbol': pairReplaceCache[symbol], user: exchange.userBotDb.userId })
+                .populate('targets')
+                .sort({ createdAt: -1 })
                 console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
 
-                const openOrders = await exchange.fetchOpenOrders(pairReplaceCache[symbol])
-                console.log("🚀 ~ file: binance.js:472 ~ executeBinanceTargetOrder ~ openOrders:", openOrders)
+                // const openOrders = await exchange.fetchOpenOrders(pairReplaceCache[symbol])
+                // console.log("🚀 ~ file: binance.js:472 ~ executeBinanceTargetOrder ~ openOrders:", openOrders)
 
                 return null;
 
