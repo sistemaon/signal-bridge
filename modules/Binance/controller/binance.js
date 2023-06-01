@@ -434,21 +434,15 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 .sort({ createdAt: -1 })
                 console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
 
-                // const openOrders = await exchange.fetchOpenOrders(pairReplaceCache[symbol])
-                // console.log("🚀 ~ file: binance.js:472 ~ executeBinanceTargetOrder ~ openOrders:", openOrders)
-
-                return null;
-
-                if (openOrders) {
-                    for (const openOrder of openOrders) {
+                if (lastOrder && lastOrder.targets) {
+                    for (const target of lastOrder.targets) {
                         try {
-                            if (!openOrder) {
+                            if (!target) {
                                 continue;
                             }
-                            if (openOrder) {
-                                console.log("🚀 ~ file: binance.js:481 ~ executeBinanceTargetOrder ~ openOrder:", openOrder)
-                                const cancelOrder = await exchange.cancelOrder(openOrder.id, pairReplaceCache[symbol])
-                                console.log("🚀 ~ file: binance.js:482 ~ executeBinanceTargetOrder ~ cancelOrder:", cancelOrder)
+                            if (target) {
+                                console.log("🚀 ~ file: binance.js:444 ~ executeBinanceTargetOrder ~ target:", target)
+                                // const cancelOrder = await exchange.cancelOrder(openOrder.id, pairReplaceCache[symbol])
                                 // const saveUserOrder = await saveExecutedUserOrder(openOrder, openOrder.user, signal);
                                 // usersOrdersIds.push(saveUserOrder._id);
                             }
@@ -458,6 +452,8 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                         }
                     }
                 }
+
+                return null;
 
                 // Create a stop loss order
                 const stopLossPositions = await exchange.fapiPrivatePostOrder({
