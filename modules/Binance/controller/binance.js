@@ -6,7 +6,7 @@ const Market = require('../model/market');
 const BinanceOrder = require('../model/order');
 const Tradingview = require('../../Tradingview/model/tradingview');
 
-const { saveExecutedUserOrder, fetchUserOrders } = require('./order');
+const { executedUserOrder, saveExecutedUserOrder, fetchUserOrders } = require('./order');
 const { saveExecutedTargetUserOrder } = require('./target');
 
 const prepareRequestsBinanceExchange = async (users, symbol) => {
@@ -770,7 +770,7 @@ const createOrderTargetIndicator = async (req, res, next) => {
                         continue;
                     }
                     if (marketPosition.info && marketPosition.id && marketPosition.user && marketPosition.user.userId) {
-                        const saveUserOrder = await saveExecutedUserOrder(marketPosition, marketPosition.user, signal);
+                        const saveUserOrder = await executedUserOrder(marketPosition, marketPosition.user, signal);
                         console.log("🚀 ~ file: binance.js:798 ~ createOrderTargetIndicator ~ saveUserOrder:", saveUserOrder)
                         usersOrdersIds.push(saveUserOrder._id);
 
@@ -782,12 +782,16 @@ const createOrderTargetIndicator = async (req, res, next) => {
                         if (marketTakeProfitPosition) {
                             const saveUserTargetTakeProfit = await saveExecutedTargetUserOrder(marketTakeProfitPosition, saveUserOrder);
                             console.log("🚀 ~ file: binance.js:804 ~ createOrderTargetIndicator ~ saveUserTargetTakeProfit:", saveUserTargetTakeProfit)
+                            saveUserOrder.targets = [...saveUserOrder.targets, saveUserTargetTakeProfit._id];
                         }
 
                         if (marketStopLossPosition) {
                             const saveUserTargetStopLoss = await saveExecutedTargetUserOrder(marketStopLossPosition, saveUserOrder);
                             console.log("🚀 ~ file: binance.js:809 ~ createOrderTargetIndicator ~ saveUserTargetStopLoss:", saveUserTargetStopLoss)
+                            saveUserOrder.targets = [...saveUserOrder.targets, saveUserTargetStopLoss._id];
                         }
+
+                        await saveUserOrder.save();
 
                     }
                 } catch (error) {
@@ -800,7 +804,7 @@ const createOrderTargetIndicator = async (req, res, next) => {
         if (!usersOrdersIds || usersOrdersIds.length === 0) {
             return res.status(404).json({ message: 'No orders and/or siganl to be saved.' });
         }
-        
+
         signal.orders = usersOrdersIds;
         const savedSignal = await signal.save();
 
