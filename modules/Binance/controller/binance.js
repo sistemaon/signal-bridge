@@ -328,7 +328,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         }
 
         const userLastPositionSymbol = await exchange.fetchAccountPositions([symbol]);
-        // console.log("🚀 ~ file: binance.js:347 ~ executeBinanceTargetOrder ~ userLastPositionSymbol:", userLastPositionSymbol)
+        console.log("🚀 ~ file: binance.js:331 ~ executeBinanceTargetOrder ~ userLastPositionSymbol:", userLastPositionSymbol)
         if (!userLastPositionSymbol || !Array.isArray(userLastPositionSymbol) || userLastPositionSymbol.length === 0) {
             console.error('Unable to fetch user last position account or position account not found.');
             return 'Unable to fetch user last position account or position account not found.';
@@ -426,7 +426,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
 
         // positionSide === 'long' &&
         side = 'buy';
-        if ( side === 'buy') {
+        if (side === 'buy') {
             try {
                 // Find last order for user
                 const lastOrder = await BinanceOrder.findOne({ 'info.symbol': pairReplaceCache[symbol], user: exchange.userBotDb.userId })
@@ -434,7 +434,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 .sort({ createdAt: -1 })
 
                 lastOrder.user = exchange.userBotDb;
-                console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
+                console.log("🚀 ~ file: binance.js:437 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
 
                 if (lastOrder && lastOrder.targets) {
                     for (const target of lastOrder.targets) {
@@ -443,9 +443,9 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                                 continue;
                             }
                             if (target) {
-                                console.log("🚀 ~ file: binance.js:444 ~ executeBinanceTargetOrder ~ target:", target)
+                                console.log("🚀 ~ file: binance.js:446 ~ executeBinanceTargetOrder ~ target:", target)
                                 const cancelOrder = await exchange.cancelOrder(target.orderId, pairReplaceCache[symbol])
-                                console.log("🚀 ~ file: binance.js:446 ~ executeBinanceTargetOrder ~ cancelOrder:", cancelOrder)
+                                console.log("🚀 ~ file: binance.js:448 ~ executeBinanceTargetOrder ~ cancelOrder:", cancelOrder)
                             }
                         } catch (error) {
                             console.error(error);
@@ -463,7 +463,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     quantity: lastOrder.amount, // Set to 0 for the entire position
                     closePosition: true
                 });
-                console.log("🚀 ~ file: binance.js:421 ~ executeBinanceTargetOrder ~ stopLossPositions:", stopLossPositions)
+                console.log("🚀 ~ file: binance.js:466 ~ executeBinanceTargetOrder ~ stopLossPositions:", stopLossPositions)
 
                 // Create a take profit order
                 const takeProfitPositions = await exchange.fapiPrivatePostOrder({
@@ -474,7 +474,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     quantity: lastOrder.amount, // Set to 0 for the entire position
                     closePosition: true
                 });
-                console.log("🚀 ~ file: binance.js:431 ~ executeBinanceTargetOrder ~ takeProfitPositions:", takeProfitPositions)
+                console.log("🚀 ~ file: binance.js:477 ~ executeBinanceTargetOrder ~ takeProfitPositions:", takeProfitPositions)
 
                 return [lastOrder, stopLossPositions, takeProfitPositions];
 
@@ -485,7 +485,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         }
 
         // positionSide === 'short' &&
-        if ( side === 'sell') {
+        if (side === 'sell') {
             try {
                 // Find last order for user
                 const lastOrder = await BinanceOrder.findOne({ 'info.symbol': pairReplaceCache[symbol], user: exchange.userBotDb.userId })
@@ -493,7 +493,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 .sort({ createdAt: -1 })
 
                 lastOrder.user = exchange.userBotDb;
-                console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
+                console.log("🚀 ~ file: binance.js:496 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
 
                 if (lastOrder && lastOrder.targets) {
                     for (const target of lastOrder.targets) {
@@ -502,9 +502,9 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                                 continue;
                             }
                             if (target) {
-                                console.log("🚀 ~ file: binance.js:444 ~ executeBinanceTargetOrder ~ target:", target)
+                                console.log("🚀 ~ file: binance.js:505 ~ executeBinanceTargetOrder ~ target:", target)
                                 const cancelOrder = await exchange.cancelOrder(target.orderId, pairReplaceCache[symbol])
-                                console.log("🚀 ~ file: binance.js:446 ~ executeBinanceTargetOrder ~ cancelOrder:", cancelOrder)
+                                console.log("🚀 ~ file: binance.js:507 ~ executeBinanceTargetOrder ~ cancelOrder:", cancelOrder)
                             }
                         } catch (error) {
                             console.error(error);
@@ -522,7 +522,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     quantity: lastOrder.amount, // Set to 0 for the entire position
                     closePosition: true
                 });
-                console.log("🚀 ~ file: binance.js:421 ~ executeBinanceTargetOrder ~ stopLossPositions:", stopLossPositions)
+                console.log("🚀 ~ file: binance.js:525 ~ executeBinanceTargetOrder ~ stopLossPositions:", stopLossPositions)
 
                 // Create a take profit order
                 const takeProfitPositions = await exchange.fapiPrivatePostOrder({
@@ -533,7 +533,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     quantity: lastOrder.amount, // Set to 0 for the entire position
                     closePosition: true
                 });
-                console.log("🚀 ~ file: binance.js:431 ~ executeBinanceTargetOrder ~ takeProfitPositions:", takeProfitPositions)
+                console.log("🚀 ~ file: binance.js:536 ~ executeBinanceTargetOrder ~ takeProfitPositions:", takeProfitPositions)
 
                 return [lastOrder, stopLossPositions, takeProfitPositions];
             } catch (error) {
@@ -600,6 +600,7 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
 
             try {
                 const createMarketPositions = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry, isPriceProtect, stop, target);
+                console.log("🚀 ~ file: binance.js:603 ~ exchanges.map ~ executeBinanceTargetOrder:", executeBinanceTargetOrder)
                 // console.log("🚀 ~ file: binance.js:597 ~ exchanges.map ~ stop, target:", stop, target)
                 // console.log("🚀 ~ file: binance.js:514 ~ exchanges.map ~ createMarketPositions:", createMarketPositions)
                 return createMarketPositions;
@@ -674,13 +675,18 @@ const createOrderTargetIndicator = async (req, res, next) => {
         const minQuantityInCoinsEntry = Number(minQuantityInCoinsCeil.toFixed(decimalPlaces));
         // console.log("🚀 ~ file: binance.js:380 ~ createOrderTargetIndicator ~ minQuantityInCoinsEntry:", minQuantityInCoinsEntry)
 
+        const roundToDecimalPlaces = (value, decimalPlaces) => {
+            const multiplier = 10 ** decimalPlaces;
+            return (Math.floor(value * multiplier) / multiplier);
+        }
+
         let stopLoss = 0
         if (stop) {
-            stopLoss = Number(stop.toFixed(decimalPlaces));
+            stopLoss = roundToDecimalPlaces(stop, decimalPlaces);
         }
         let takeProfit = 0
         if (target) {
-            takeProfit = Number(target.toFixed(decimalPlaces));
+            takeProfit = roundToDecimalPlaces(target, decimalPlaces);
         }
 
         const users = await User.find({ username: 'suun' });
