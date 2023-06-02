@@ -487,55 +487,55 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         // positionSide === 'short' &&
         if ( side === 'sell') {
             try {
-                console.log("🚀 ~ file: binance.js:441 ~ executeBinanceTargetOrder ~ isPriceProtect:", isPriceProtect)
-
                 // Find last order for user
-                console.log("🚀 ~ file: binance.js:446 ~ executeBinanceTargetOrder ~ symbol:", symbol)
                 const lastOrder = await BinanceOrder.findOne({ 'info.symbol': pairReplaceCache[symbol], user: exchange.userBotDb.userId })
+                .populate('targets')
                 .sort({ createdAt: -1 })
-                //
-                console.log("🚀 ~ file: binance.js:445 ~ executeBinanceTargetOrder ~ exchange.userBotDb.userId:", exchange.userBotDb.userId)
-                // console.log("🚀 ~ file: binance.js:456 ~ executeBinanceTargetOrder ~ exchange:", exchange)
-                console.log("🚀 ~ file: binance.js:438 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
-                // const updateOrder = await exchange.createOrder(lastOrder.info.symbol, 'LIMIT', 'buy', lastOrder.amount, 0.22);
-                // console.log("🚀 ~ file: binance.js:458 ~ executeBinanceTargetOrder ~ updateOrder:", updateOrder)
-                // const updatedPosition = await exchange.fapiPrivatePostPositionMargin({
-                //     symbol: pairReplaceCache[symbol],
-                //     stopLoss: 0.22,
-                //     takeProfit: 0.19,
-                // });
-                // console.log("🚀 ~ file: binance.js:457 ~ executeBinanceTargetOrder ~ updatedPosition:", updatedPosition)
-                // const updatedOrder = await exchange.editOrder(lastOrder.id, lastOrder.info.symbol, 'MARKET', 'SELL', 0, undefined, {'stopLossPrice': 0.22, 'takeProfitPrice': 0.19 });
-                // console.log("🚀 ~ file: binance.js:465 ~ executeBinanceTargetOrder ~ updatedOrder:", updatedOrder)
-                return null;
 
-                // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
-                // const symbol = lastOrder.info.symbol; // Symbol of the last order
-                // const type = 'MARKET'; // Set order type as market
-                // const side = 'BUY'; // Side of the order (buy)
-                // const amount = lastOrder.info.origQty; // Use the original quantity from the last order
-                // const price = undefined; // Not required for market orders
-                // const params = {
-                // stopPrice: updatedStopLoss,
-                // takeProfitPrice: updatedTakeProfit,
-                // };
-                // const updatedOrder = await binance.editOrder(orderId, symbol, type, side, amount, price, params);
+                lastOrder.user = exchange.userBotDb;
+                console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
 
-                // edit update stop loss and take profit
-                // const updatedOrder = await binance.editOrder(order.id, symbol, 'MARKET', order.side, order.amount, undefined, {
-                //     stopPrice: stopLossPrice,
-                //     takeProfitPrice: takeProfitPrice,
-                //   });
-                
-                // const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
-                // const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
-                // if (!order) {
-                //     const message = `Unable to update stop loss and take profit order for user: ${exchange.userBotDb.username}.`;
-                //     console.error(message);
-                //     return message;
-                // }
-                // order.user = exchange.userBotDb;
-                // return order;
+                if (lastOrder && lastOrder.targets) {
+                    for (const target of lastOrder.targets) {
+                        try {
+                            if (!target) {
+                                continue;
+                            }
+                            if (target) {
+                                console.log("🚀 ~ file: binance.js:444 ~ executeBinanceTargetOrder ~ target:", target)
+                                const cancelOrder = await exchange.cancelOrder(target.orderId, pairReplaceCache[symbol])
+                                console.log("🚀 ~ file: binance.js:446 ~ executeBinanceTargetOrder ~ cancelOrder:", cancelOrder)
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            return error;
+                        }
+                    }
+                }
+
+                // Create a stop loss order
+                const stopLossPositions = await exchange.fapiPrivatePostOrder({
+                    symbol: pairReplaceCache[symbol],
+                    side: 'BUY',
+                    type: 'STOP_MARKET', // STOP_MARKET
+                    stopPrice: stop, // stop
+                    quantity: lastOrder.amount, // Set to 0 for the entire position
+                    closePosition: true
+                });
+                console.log("🚀 ~ file: binance.js:421 ~ executeBinanceTargetOrder ~ stopLossPositions:", stopLossPositions)
+
+                // Create a take profit order
+                const takeProfitPositions = await exchange.fapiPrivatePostOrder({
+                    symbol: pairReplaceCache[symbol],
+                    side: 'BUY',
+                    type: 'TAKE_PROFIT_MARKET', // TAKE_PROFIT_MARKET
+                    stopPrice: target, // target
+                    quantity: lastOrder.amount, // Set to 0 for the entire position
+                    closePosition: true
+                });
+                console.log("🚀 ~ file: binance.js:431 ~ executeBinanceTargetOrder ~ takeProfitPositions:", takeProfitPositions)
+
+                return [lastOrder, stopLossPositions, takeProfitPositions];
             } catch (error) {
                 console.error(`Unable to update stop loss and take profit order for user ${exchange.userBotDb.username}: ${error.message}`);
                 return `Unable to update stop loss and take profit order for user ${exchange.userBotDb.username}: ${error.message}`;
