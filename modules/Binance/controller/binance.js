@@ -6,7 +6,7 @@ const Market = require('../model/market');
 const BinanceOrder = require('../model/order');
 const Tradingview = require('../../Tradingview/model/tradingview');
 
-const { executedUserOrder, saveExecutedUserOrder, fetchUserOrders } = require('./order');
+const { executedUserOrder, saveExecutedUserOrder, updateTargetsUserOrder, fetchUserOrders } = require('./order');
 const { saveExecutedTargetUserOrder } = require('./target');
 
 const prepareRequestsBinanceExchange = async (users, symbol) => {
@@ -432,6 +432,8 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                 const lastOrder = await BinanceOrder.findOne({ 'info.symbol': pairReplaceCache[symbol], user: exchange.userBotDb.userId })
                 .populate('targets')
                 .sort({ createdAt: -1 })
+
+                lastOrder.user = exchange.userBotDb;
                 console.log("🚀 ~ file: binance.js:394 ~ executeBinanceTargetOrder ~ lastOrder:", lastOrder)
 
                 if (lastOrder && lastOrder.targets) {
@@ -442,9 +444,8 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                             }
                             if (target) {
                                 console.log("🚀 ~ file: binance.js:444 ~ executeBinanceTargetOrder ~ target:", target)
-                                // const cancelOrder = await exchange.cancelOrder(openOrder.id, pairReplaceCache[symbol])
-                                // const saveUserOrder = await saveExecutedUserOrder(openOrder, openOrder.user, signal);
-                                // usersOrdersIds.push(saveUserOrder._id);
+                                const cancelOrder = await exchange.cancelOrder(target.orderId, pairReplaceCache[symbol])
+                                console.log("🚀 ~ file: binance.js:446 ~ executeBinanceTargetOrder ~ cancelOrder:", cancelOrder)
                             }
                         } catch (error) {
                             console.error(error);
@@ -453,67 +454,36 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     }
                 }
 
-                return null;
-
                 // Create a stop loss order
                 const stopLossPositions = await exchange.fapiPrivatePostOrder({
                     symbol: pairReplaceCache[symbol],
-                    side: 'BUY',
+                    side: 'SELL',
                     type: 'STOP_MARKET', // STOP_MARKET
                     stopPrice: stop, // stop
                     quantity: lastOrder.amount, // Set to 0 for the entire position
-                    closePosition: true,
-                    // reduceOnly: true,
+                    closePosition: true
                 });
                 console.log("🚀 ~ file: binance.js:421 ~ executeBinanceTargetOrder ~ stopLossPositions:", stopLossPositions)
 
                 // Create a take profit order
                 const takeProfitPositions = await exchange.fapiPrivatePostOrder({
                     symbol: pairReplaceCache[symbol],
-                    side: 'BUY',
+                    side: 'SELL',
                     type: 'TAKE_PROFIT_MARKET', // TAKE_PROFIT_MARKET
                     stopPrice: target, // target
                     quantity: lastOrder.amount, // Set to 0 for the entire position
-                    closePosition: true,
-                    // reduceOnly: true,
+                    closePosition: true
                 });
                 console.log("🚀 ~ file: binance.js:431 ~ executeBinanceTargetOrder ~ takeProfitPositions:", takeProfitPositions)
-                return null;
 
-                // const orderId = lastOrder.id; // ID of the last order fetched from user's exchange info
-                // const symbol = lastOrder.info.symbol; // Symbol of the last order
-                // const type = 'MARKET'; // Set order type as market
-                // const side = 'BUY'; // Side of the order (buy)
-                // const amount = lastOrder.info.origQty; // Use the original quantity from the last order
-                // const price = undefined; // Not required for market orders
-                // const params = {
-                // stopPrice: updatedStopLoss,
-                // takeProfitPrice: updatedTakeProfit,
-                // };
-                // const updatedOrder = await binance.editOrder(orderId, symbol, type, side, amount, price, params);
+                return [lastOrder, stopLossPositions, takeProfitPositions];
 
-                // edit update stop loss and take profit
-                // const updatedOrder = await binance.editOrder(order.id, symbol, 'MARKET', order.side, order.amount, undefined, {
-                //     stopPrice: stopLossPrice,
-                //     takeProfitPrice: takeProfitPrice,
-                //   });
-
-
-                // const positionAmountToCreateOppositeDirectionOrder = (positionAmount * 2);
-                // const order = await exchange.createOrder(symbol, type, side, positionAmountToCreateOppositeDirectionOrder);
-                // if (!order) {
-                //     const message = `Unable to update stop loss and take profit order for user: ${exchange.userBotDb.username}.`;
-                //     console.error(message);
-                //     return message;
-                // }
-                // order.user = exchange.userBotDb;
-                // return order;
             } catch (error) {
                 console.error(`Unable to update stop loss and take profit order for user ${exchange.userBotDb.username}: ${error.message}`);
                 return `Unable to update stop loss and take profit order for user ${exchange.userBotDb.username}: ${error.message}`;
             }
         }
-        
+
         // positionSide === 'short' &&
         if ( side === 'sell') {
             try {
@@ -728,7 +698,7 @@ const createOrderTargetIndicator = async (req, res, next) => {
 
         const positions = await verifyToOpenTargetOrders(exchanges, entry, decimalPlaces, minQuantityInCoinsEntry, pair, side, isPriceProtect, stopLoss, takeProfit);
 
-        console.log("🚀 ~ file: binance.js:761 ~ createOrderTargetIndicator ~ positions:", positions)
+        console.log("🚀 ~ file: binance.js:701 ~ createOrderTargetIndicator ~ positions:", positions)
 
         if (!positions || positions.length === 0) {
             return res.status(404).json({ message: 'Orders not found.' });
@@ -736,19 +706,11 @@ const createOrderTargetIndicator = async (req, res, next) => {
 
         // return res.status(201).json(positions);
 
-        const signal = new Tradingview({
-            strategyName: strategyName,
-            pair: pair,
-            chartTimeframe: chartTimeframe,
-            side: side,
-            entry: entry,
-            signalTradeType: signalTradeType
-        });
-
+        let signal = null;
         const usersOrdersIds = [];
         if (positions) {
             for (const position of positions) {
-                console.log("🚀 ~ file: binance.js:779 ~ createOrderTargetIndicator ~ position:", position)
+                console.log("🚀 ~ file: binance.js:713 ~ createOrderTargetIndicator ~ position:", position)
 
                 try {
                     if (!position) {
@@ -761,35 +723,70 @@ const createOrderTargetIndicator = async (req, res, next) => {
                 }
 
                 const marketPosition = position.find(position => position.type === 'market');
-                console.log("🚀 ~ file: binance.js:786 ~ createOrderTargetIndicator ~ marketPosition:", marketPosition)
+                console.log("🚀 ~ file: binance.js:726 ~ createOrderTargetIndicator ~ marketPosition:", marketPosition)
 
                 try {
                     if (!marketPosition) {
                         continue;
                     }
-                    if (marketPosition.info && marketPosition.id && marketPosition.user && marketPosition.user.userId) {
+
+                    if (marketPosition.info && marketPosition.id && marketPosition.user && marketPosition.user.userId && !isPriceProtect) {
+
+                        signal = new Tradingview({
+                            strategyName: strategyName,
+                            pair: pair,
+                            chartTimeframe: chartTimeframe,
+                            side: side,
+                            entry: entry,
+                            signalTradeType: signalTradeType
+                        });
+
                         const saveUserOrder = await executedUserOrder(marketPosition, marketPosition.user, signal);
-                        console.log("🚀 ~ file: binance.js:798 ~ createOrderTargetIndicator ~ saveUserOrder:", saveUserOrder)
+                        console.log("🚀 ~ file: binance.js:745 ~ createOrderTargetIndicator ~ saveUserOrder:", saveUserOrder)
                         usersOrdersIds.push(saveUserOrder._id);
 
                         const marketTakeProfitPosition = position.find(position => position.type === 'TAKE_PROFIT_MARKET');
-                        console.log("🚀 ~ file: binance.js:799 ~ createOrderTargetIndicator ~ marketTakeProfitPosition:", marketTakeProfitPosition)
+                        console.log("🚀 ~ file: binance.js:749 ~ createOrderTargetIndicator ~ marketTakeProfitPosition:", marketTakeProfitPosition)
                         const marketStopLossPosition = position.find(position => position.type === 'STOP_MARKET');
-                        console.log("🚀 ~ file: binance.js:801 ~ createOrderTargetIndicator ~ marketStopLossPosition:", marketStopLossPosition)
+                        console.log("🚀 ~ file: binance.js:751 ~ createOrderTargetIndicator ~ marketStopLossPosition:", marketStopLossPosition)
 
                         if (marketTakeProfitPosition) {
                             const saveUserTargetTakeProfit = await saveExecutedTargetUserOrder(marketTakeProfitPosition, saveUserOrder);
-                            console.log("🚀 ~ file: binance.js:804 ~ createOrderTargetIndicator ~ saveUserTargetTakeProfit:", saveUserTargetTakeProfit)
+                            console.log("🚀 ~ file: binance.js:755 ~ createOrderTargetIndicator ~ saveUserTargetTakeProfit:", saveUserTargetTakeProfit)
                             saveUserOrder.targets = [...saveUserOrder.targets, saveUserTargetTakeProfit._id];
                         }
 
                         if (marketStopLossPosition) {
                             const saveUserTargetStopLoss = await saveExecutedTargetUserOrder(marketStopLossPosition, saveUserOrder);
-                            console.log("🚀 ~ file: binance.js:809 ~ createOrderTargetIndicator ~ saveUserTargetStopLoss:", saveUserTargetStopLoss)
+                            console.log("🚀 ~ file: binance.js:761 ~ createOrderTargetIndicator ~ saveUserTargetStopLoss:", saveUserTargetStopLoss)
                             saveUserOrder.targets = [...saveUserOrder.targets, saveUserTargetStopLoss._id];
                         }
 
                         await saveUserOrder.save();
+
+                    }
+
+                    if (marketPosition.info && marketPosition.id && marketPosition.user && marketPosition.user.userId && isPriceProtect) {
+
+                        const marketTakeProfitPosition = position.find(position => position.type === 'TAKE_PROFIT_MARKET');
+                        console.log("🚀 ~ file: binance.js:772 ~ createOrderTargetIndicator ~ marketTakeProfitPosition:", marketTakeProfitPosition)
+                        const marketStopLossPosition = position.find(position => position.type === 'STOP_MARKET');
+                        console.log("🚀 ~ file: binance.js:774 ~ createOrderTargetIndicator ~ marketStopLossPosition:", marketStopLossPosition)
+
+                        // if (marketTakeProfitPosition) {
+                        // }
+                        // if (marketStopLossPosition) {
+                        // }
+
+                        const saveUserTargetTakeProfit = await saveExecutedTargetUserOrder(marketTakeProfitPosition, marketPosition);
+                        console.log("🚀 ~ file: binance.js:782 ~ createOrderTargetIndicator ~ saveUserTargetTakeProfit:", saveUserTargetTakeProfit)
+
+                        const saveUserTargetStopLoss = await saveExecutedTargetUserOrder(marketStopLossPosition, marketPosition);
+                        console.log("🚀 ~ file: binance.js:785 ~ createOrderTargetIndicator ~ saveUserTargetStopLoss:", saveUserTargetStopLoss)
+
+                        const updateTargetsOrder = await updateTargetsUserOrder(marketPosition._id, [saveUserTargetTakeProfit._id, saveUserTargetStopLoss._id]);
+                        console.log("🚀 ~ file: binance.js:788 ~ createOrderTargetIndicator ~ updateTargetsOrder:", updateTargetsOrder)
+
 
                     }
                 } catch (error) {
@@ -799,16 +796,31 @@ const createOrderTargetIndicator = async (req, res, next) => {
             }
         }
 
-        if (!usersOrdersIds || usersOrdersIds.length === 0) {
-            return res.status(404).json({ message: 'No orders and/or siganl to be saved.' });
+        if (!isPriceProtect) {
+            if (!usersOrdersIds || usersOrdersIds.length === 0) {
+                return res.status(404).json({ message: 'No orders and/or siganl to be saved.' });
+            }
+    
+            signal.orders = usersOrdersIds;
+            const savedSignal = await signal.save();
+    
+            console.log("🚀 ~ file: binance.js:484 ~ createOrderTargetIndicator ~ savedSignal:", savedSignal)
+    
+            return res.status(201).json({ orders: positions, savedSignal: savedSignal });
         }
 
-        signal.orders = usersOrdersIds;
-        const savedSignal = await signal.save();
-
-        console.log("🚀 ~ file: binance.js:484 ~ createOrderTargetIndicator ~ savedSignal:", savedSignal)
-
-        return res.status(201).json({ orders: positions, savedSignal: savedSignal });
+        if (isPriceProtect) {
+            if (!usersOrdersIds || usersOrdersIds.length === 0) {
+                return res.status(404).json({ message: 'No orders and/or siganl to be saved.' });
+            }
+    
+            // signal.orders = usersOrdersIds;
+            // const savedSignal = await signal.save();
+    
+            // console.log("🚀 ~ file: binance.js:484 ~ createOrderTargetIndicator ~ savedSignal:", savedSignal)
+    
+            return res.status(201).json({ orders: positions });
+        }
 
     } catch (error) {
         console.error(error);
