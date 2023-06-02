@@ -81,7 +81,7 @@ const saveExecutedUserOrder = async (order, user, signal, targets) => {
 const updateTargetsUserOrder = async (orderId, targets) => {
     try {
         const updateOrder = await Order.findByIdAndUpdate(orderId,
-            { $push: { targets: targets } },
+            { $set: { targets: targets } },
             { new: true }
         );
         return updateOrder;
