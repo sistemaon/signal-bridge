@@ -78,6 +78,19 @@ const saveExecutedUserOrder = async (order, user, signal, targets) => {
     }
 };
 
+const updateTargetsUserOrder = async (orderId, targets) => {
+    try {
+        const updateOrder = await Order.findByIdAndUpdate(orderId,
+            { $push: { targets: targets } },
+            { new: true }
+        );
+        return updateOrder;
+    } catch (error) {
+        console.error({ error });
+        return error;
+    }
+};
+
 const fetchUserOrders = async (userId) => {
     try {
         const userOrders = await Order.find({ user: userId })
@@ -99,6 +112,7 @@ const fetchUserOrders = async (userId) => {
 const orderController = {
     executedUserOrder,
     saveExecutedUserOrder,
+    updateTargetsUserOrder,
     fetchUserOrders
 };
 
