@@ -780,8 +780,10 @@ const createOrderTargetIndicator = async (req, res, next) => {
                         console.log("🚀 ~ file: binance.js:780 ~ createOrderTargetIndicator ~ marketStopLossPosition:", marketStopLossPosition)
 
                         // if (marketTakeProfitPosition) {
+
                         // }
                         // if (marketStopLossPosition) {
+
                         // }
 
                         const saveUserTargetTakeProfit = await saveExecutedTargetUserOrder(marketTakeProfitPosition, marketPosition);
@@ -792,7 +794,6 @@ const createOrderTargetIndicator = async (req, res, next) => {
 
                         const updateTargetsOrder = await updateTargetsUserOrder(marketPosition._id, [saveUserTargetTakeProfit._id, saveUserTargetStopLoss._id]);
                         console.log("🚀 ~ file: binance.js:794 ~ createOrderTargetIndicator ~ updateTargetsOrder:", updateTargetsOrder)
-
 
                     }
                 } catch (error) {
