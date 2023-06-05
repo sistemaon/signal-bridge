@@ -780,9 +780,9 @@ const createOrderTargetIndicator = async (req, res, next) => {
         }
 
         if (isPriceProtect) {
-            if (!usersOrdersIds || usersOrdersIds.length === 0) {
-                return res.status(404).json({ message: 'No orders and/or siganl to be saved.' });
-            }
+            // if (!usersOrdersIds || usersOrdersIds.length === 0) {
+            //     return res.status(404).json({ message: 'No orders and/or siganl to be saved.' });
+            // }
             return res.status(200).json({ orders: positions });
         }
 
