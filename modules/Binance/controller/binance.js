@@ -425,7 +425,6 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
         // }
 
         // positionSide === 'long' &&
-        side = 'sell';
         if (side === 'buy') {
             try {
                 // Find last order for user
@@ -513,6 +512,8 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     }
                 }
 
+                console.log("🚀 ~ file: binance.js:515 ~ executeBinanceTargetOrder ~ stop:", stop)
+                console.log("🚀 ~ file: binance.js:516 ~ executeBinanceTargetOrder ~ target:", target)
                 // Create a stop loss order
                 const stopLossPositions = await exchange.fapiPrivatePostOrder({
                     symbol: pairReplaceCache[symbol],
@@ -600,21 +601,7 @@ const verifyToOpenTargetOrders = async (exchanges, entry, decimalPlaces, minQuan
 
             try {
                 const createMarketPositions = await executeBinanceTargetOrder(exchange, pair, 'market', side, amountBalanceQuantityInCoinsEntry, isPriceProtect, stop, target);
-                // console.log("🚀 ~ file: binance.js:603 ~ exchanges.map ~ executeBinanceTargetOrder:", executeBinanceTargetOrder)
-                // console.log("🚀 ~ file: binance.js:597 ~ exchanges.map ~ stop, target:", stop, target)
-                // console.log("🚀 ~ file: binance.js:514 ~ exchanges.map ~ createMarketPositions:", createMarketPositions)
                 return createMarketPositions;
-
-                //////////////////////////////////
-                // const marketPosition = createMarketPositions.find(position => position.type === 'market');
-                // console.log("🚀 ~ file: binance.js:669 ~ exchanges.map ~ marketPosition:", marketPosition)
-                // if (marketPosition && marketPosition.info && marketPosition.user && marketPosition.user.userId) {
-                //     return createMarketPositions;
-                // } else {
-                //     return null;
-                // }
-                //////////////////////////////////
-
             } catch (error) {
                 console.error(error);
                 return null;
@@ -627,7 +614,7 @@ const createOrderTargetIndicator = async (req, res, next) => {
     try {
         const { strategyName, pair, chartTimeframe, side, entry, signalTradeType, isPriceProtect, stop, target } = req.body;
         console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", { reqbody: req.body });
-
+        // return res.status(200).json({ message: 'OK' });
         if (!strategyName || !pair || !chartTimeframe || !chartTimeframe.chronoAmount || !chartTimeframe.chronoUnit || !side || !entry || !signalTradeType) { // !stop || !target
             console.error('Missing parameters.');
             return res.status(400).json({ message: 'Missing parameters.' });
