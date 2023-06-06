@@ -357,6 +357,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                         quantity: amount,
                         closePosition: true
                     });
+                    stopLossPositions.user = exchange.userBotDb;
                     console.log("🚀 ~ file: binance.js:362 ~ executeBinanceTargetOrder ~ stopLossPositions:", stopLossPositions)
 
                     const takeProfitPositions = await exchange.fapiPrivatePostOrder({
@@ -367,6 +368,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                         quantity: amount,
                         closePosition: true
                     });
+                    takeProfitPositions.user = exchange.userBotDb;
                     console.log("🚀 ~ file: binance.js:372 ~ executeBinanceTargetOrder ~ takeProfitPositions:", takeProfitPositions)
 
                     return [positions, stopLossPositions, takeProfitPositions];
@@ -388,6 +390,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                         quantity: amount,
                         closePosition: true
                     });
+                    stopLossPositions.user = exchange.userBotDb;
                     console.log("🚀 ~ file: binance.js:393 ~ executeBinanceTargetOrder ~ stopLossPositions:", stopLossPositions)
 
                     const takeProfitPositions = await exchange.fapiPrivatePostOrder({
@@ -398,6 +401,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                         quantity: amount,
                         closePosition: true
                     });
+                    takeProfitPositions.user = exchange.userBotDb;
                     console.log("🚀 ~ file: binance.js:403 ~ executeBinanceTargetOrder ~ takeProfitPositions:", takeProfitPositions)
 
                     return [positions, stopLossPositions, takeProfitPositions];
@@ -453,6 +457,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     quantity: lastOrder.amount, // Set to 0 for the entire position
                     closePosition: true
                 });
+                stopLossPositions.user = exchange.userBotDb;
                 console.log("🚀 ~ file: binance.js:460 ~ executeBinanceTargetOrder ~ stopLossPositions:", stopLossPositions)
 
                 const takeProfitPositions = await exchange.fapiPrivatePostOrder({
@@ -463,7 +468,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     quantity: lastOrder.amount, // Set to 0 for the entire position
                     closePosition: true
                 });
-
+                takeProfitPositions.user = exchange.userBotDb;
                 console.log("🚀 ~ file: binance.js:471 ~ executeBinanceTargetOrder ~ takeProfitPositions:", takeProfitPositions)
 
                 return [lastOrder, stopLossPositions, takeProfitPositions];
@@ -512,6 +517,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     quantity: lastOrder.amount, // Set to 0 for the entire position
                     closePosition: true
                 });
+                stopLossPositions.user = exchange.userBotDb;
                 console.log("🚀 ~ file: binance.js:525 ~ executeBinanceTargetOrder ~ stopLossPositions:", stopLossPositions)
 
                 const takeProfitPositions = await exchange.fapiPrivatePostOrder({
@@ -522,6 +528,7 @@ const executeBinanceTargetOrder = async (exchange, symbol, type, side, amount, i
                     quantity: lastOrder.amount, // Set to 0 for the entire position
                     closePosition: true
                 });
+                takeProfitPositions.user = exchange.userBotDb;
                 console.log("🚀 ~ file: binance.js:536 ~ executeBinanceTargetOrder ~ takeProfitPositions:", takeProfitPositions)
 
                 return [lastOrder, stopLossPositions, takeProfitPositions];
