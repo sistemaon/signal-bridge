@@ -609,7 +609,7 @@ const createOrderTargetIndicator = async (req, res, next) => {
     try {
         const { strategyName, pair, chartTimeframe, side, entry, signalTradeType, isPriceProtect, stop, target } = req.body;
         console.log("🚀 ~ file: binance.js:215 ~ createOrderSignalIndicator= ~ req.body:", { reqbody: req.body });
-        // return res.status(200).json({ message: 'OK' });
+
         if (!strategyName || !pair || !chartTimeframe || !chartTimeframe.chronoAmount || !chartTimeframe.chronoUnit || !side || !entry || !signalTradeType) { // !stop || !target
             console.error('Missing parameters.');
             return res.status(400).json({ message: 'Missing parameters.' });
@@ -777,12 +777,12 @@ const createOrderTargetIndicator = async (req, res, next) => {
             if (!usersOrdersIds || usersOrdersIds.length === 0) {
                 return res.status(404).json({ message: 'No orders and/or siganl to be saved.' });
             }
-    
+
             signal.orders = usersOrdersIds;
             const savedSignal = await signal.save();
-    
+
             console.log("🚀 ~ file: binance.js:813 ~ createOrderTargetIndicator ~ savedSignal:", savedSignal)
-    
+
             return res.status(201).json({ orders: positions, savedSignal: savedSignal });
         }
 
